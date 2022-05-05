@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    #image: 320821327525.dkr.ecr.ap-south-1.amazonaws.com/backend:latest
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      - ./data/web:/vol/web
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    # networks:
+    #   - airfarms-network
+    
+  redis:
+    #build: .
+    image: redis:alpine #"bitnami/redis:latest"
+    ports:
+        - "6379:6379"
+    # environment:
+    #   - ALLOW_EMPTY_PASSWORD=yes
+    # networks:
+    #   - airfarms-network
+
+  # networks:
+  #   airfarms-network:
+  #     driver: bridge # a user defined bridge is required; the default bridge network doesn't support name resolution

@@ -1,3 +1,0 @@
-django-countries
-django-crispy-forms
-django-allauth

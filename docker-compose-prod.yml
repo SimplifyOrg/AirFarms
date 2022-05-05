@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  backend:
+    image: 320821327525.dkr.ecr.ap-south-1.amazonaws.com/backend:latest
+    restart: always
+    # volumes:
+    #   - static-data:/vol/web
+    # environment:
+    #   - DB_HOST=db
+    #   - DB_NAME=${DB_NAME}
+    #   - DB_USER=${DB_USER}
+    #   - DB_PASS=${DB_PASS}
+    #   - SECRET_KEY=${SECRET_KEY}
+    #   - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+
+  proxy:
+    image: 320821327525.dkr.ecr.ap-south-1.amazonaws.com/proxy:latest
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "8000:8000" # mapping different port from container port is not supported in ECs context
+                    # ECS context needs port to be set for load balancer to be created.
+    # volumes:
+    #   - static-data:/vol/static
+
+# volumes:
+#   static-data:
