@@ -8,6 +8,7 @@ import WorkflowContext from './utils/WorkflowContext';
 import {BrowserRouter} from 'react-router-dom'
 import Navigation from './routes/index'
 import NodeContext from './utils/NodeContext';
+import JsonFlowContext from './utils/JsonFlowContext';
 
 function App() {
     const [user, setUser] = useState({});
@@ -21,16 +22,21 @@ function App() {
 
     const [node, setNode] = useState({});
     const valueNode = { node, setNode };
+
+    const [jsonFlow, setJsonFlow] = useState({});
+    const valueJson = { jsonFlow, setJsonFlow };
   return (
     <div className="App">
         <UserContext.Provider value={valueUser}>
             <FarmContext.Provider value={valueFarm}>
                 <WorkflowContext.Provider value={valueWorkflow}>
-                    <NodeContext.Provider value={valueNode}>
-                        <BrowserRouter>
-                            <Navigation/>
-                        </BrowserRouter>
-                    </NodeContext.Provider>
+                    <JsonFlowContext.Provider value={valueJson}>
+                        <NodeContext.Provider value={valueNode}>
+                            <BrowserRouter>
+                                <Navigation/>
+                            </BrowserRouter>
+                        </NodeContext.Provider>
+                    </JsonFlowContext.Provider>
                 </WorkflowContext.Provider>
             </FarmContext.Provider>
         </UserContext.Provider>      

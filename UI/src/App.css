@@ -36,3 +36,30 @@
     transform: rotate(360deg);
   }
 }
+
+.active {
+    color:orange.400
+}
+
+.sidebar-items {
+    color: orange.400;
+    font-size: large;
+}
+
+.sidebar-items p {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+.sidebar-items:hover p {
+    color: rgb(215, 241, 176)
+
+}
+
+.sidebar-items:hover svg {
+    color: rgb(215, 241, 176)   
+}
+
+.sidebar-items:not(:last-child) {
+    margin-bottom: 1.5em;
+}
