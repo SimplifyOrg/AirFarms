@@ -1,5 +1,5 @@
 .edgebutton {
-    width: 20px;
+    width: 40px;
     height: 20px;
     background: #eee;
     border: 1px solid #fff;
@@ -7,6 +7,7 @@
     border-radius: 50%;
     font-size: 12px;
     line-height: 1;
+    display: flex;
   }
   
   .edgebutton:hover {
@@ -18,7 +19,7 @@
     width: 40px;
     height: 40px;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     min-height: 40px;
   }
