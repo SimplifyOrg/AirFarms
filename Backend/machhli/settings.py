@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'farm.apps.FarmConfig',
     'discussion.apps.DiscussionConfig',
     'activity.apps.ActivityConfig',
+    'notifications.apps.NotificationsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'rest_framework_simplejwt',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -98,6 +100,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'machhli.wsgi.application'
+ASGI_APPLICATION = 'machhli.asgi.application'
 
 
 # Database
@@ -176,4 +179,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+}
+
+# Channel Redis settings
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
 }
