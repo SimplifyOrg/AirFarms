@@ -15,13 +15,31 @@ function Transition(props) {
     const { farm } = useContext(FarmContext);
     const { workflow, setWorkflow } = useContext(WorkflowContext);
     const [transitionid, SetTransitionid] = useState(-1);
-    const [approvals, SetAppovals] = useState([])
+    let initialApprovals = []
+    let initApprovals = new Map()
+    const [approvals, SetAppovals] = useState(initialApprovals)
     const [approvers, SetApprovers] = useState(initialApprovers)
 
     const getTransitionId = () => {
         SetTransitionid(transitionid+1)
         return transitionid+1
     }
+
+    useEffect(() => {
+        // When loading list of approvers will all ready
+        // be set. Update UI with current list of approvers
+        // const workflowObj = JSON.parse(workflow)
+        for(let i = 0; i < props.edge.data?.transition?.transitionapprovals?.length; ++i)
+        {
+            if(!initApprovals.has(props.edge.data?.transition?.transitionapprovals[i].approver))
+            {
+                initApprovals.set([props.edge.data?.transition?.transitionapprovals[i].approver, props.edge.data?.transition?.transitionapprovals[i]])
+                initialApprovals.push(props.edge.data?.transition?.transitionapprovals[i])
+            }
+            SetAppovals(initialApprovals.slice())
+        }
+
+    },[approvals])
 
     useEffect(() => {
         // Get all available approvers
@@ -31,6 +49,9 @@ function Transition(props) {
                 'Accept': 'application/json'
             }
         }
+
+        // Get list of all approvers
+        // These will appear in the drop down on the edge
         if(farm !== null)
         {
         authProvider.authGet(`/farm/perform/group/?farm=${farm.id}`, config)
@@ -52,10 +73,10 @@ function Transition(props) {
                         console.log(res.data);
                         for(let j = 0; j < res.data.length; ++j)
                         {
-                            if(!initSet.has(res.data[i].id))
+                            if(!initSet.has(res.data[j].id))
                             {
-                                initSet.add(res.data[i].id)
-                                initialApprovers.push(res.data[i])
+                                initSet.add(res.data[j].id)
+                                initialApprovers.push(res.data[j])
                             }                            
                         }
                         SetApprovers(initialApprovers.slice())
@@ -73,12 +94,12 @@ function Transition(props) {
             console.log(errorPic.data);
         })
         }
-    }, [approvals])
+    }, [])
 
     const addTransitionApproval = (transitionApproval) => {
 
         // Get current workflow's JSON object
-        let currWorkflow = JSON.parse(workflow);
+        let currWorkflow = JSON.parse(localStorage.getItem(workflow));
         let edgeIndex = -1;
 
         // TODO: optimize
@@ -93,14 +114,18 @@ function Transition(props) {
             }
         }
 
-        // Add new work to the node index retrived 
+        // Add new transition approval to the edge index retrived 
         // from above loop.
-        if(edgeIndex !== -1)
+        if(edgeIndex !== -1 && !initApprovals.has(transitionApproval.approver))
         {
             // Add transition approvals to transition on edge
             currWorkflow.edges[edgeIndex].data.transition.transitionapprovals.push(transitionApproval)
-            SetAppovals(currWorkflow.edges[edgeIndex].data.transition.transitionapprovals)
-            setWorkflow(JSON.stringify(currWorkflow))
+            initialApprovals.push(transitionApproval)
+            initApprovals.set([transitionApproval.approver, transitionApproval])
+            // SetAppovals(currWorkflow.edges[edgeIndex].data.transition.transitionapprovals)
+            SetAppovals(initialApprovals.slice())
+            localStorage.setItem(workflow, JSON.stringify(currWorkflow));
+            // setWorkflow(JSON.stringify(currWorkflow))
         }
     }
 
@@ -162,7 +187,7 @@ function Transition(props) {
             {
                 approvals.length === 0 ? <></>: approvals.map((approver, idx) => {
                 return(
-                    <Approver key={idx} id={approver.approver} addApprover={props.addApprover} />
+                    <Approver key={idx} id={approver.approver} addApprover={props.addApprover} approval={approvals[idx]} edge={props.edge}/>
                 )
                 })
             }
