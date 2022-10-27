@@ -44,11 +44,11 @@ class TransitionApproval(models.Model):
     reject = models.BooleanField(default=False)
 
 class Work(DiscussionBoard):
-    assignee = ManyToManyField(User)
+    assignee = ManyToManyField(User, blank=True)
     notifiers = ManyToManyField(User, blank=True, related_name='work_notifiers')
     notes = TextField(blank=True)
     associatedState = ForeignKey(State, on_delete=models.CASCADE)
-    completion_date = DateTimeField(blank=True)
+    completion_date = DateTimeField(default=return_date_time, blank=True)
     start_date = DateTimeField(default=timezone.now)
     has_finished = models.BooleanField(default=False)
     is_halted = models.BooleanField(default=False)

@@ -12,7 +12,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     queryset = Workflow.objects.all()
     serializer_class = WorkflowSerializer
     filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['owner']
+    filterset_fields = ['id', 'owner', 'farm', 'is_production', 'has_finished']
 
 class WorkViewSet(viewsets.ModelViewSet):
     permission_classes = [
@@ -20,6 +20,8 @@ class WorkViewSet(viewsets.ModelViewSet):
     ]
     queryset = Work.objects.all()
     serializer_class = WorkSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = ['id', 'assignee', 'completion_date', 'has_finished', 'is_halted']
 
 class StateViewSet(viewsets.ModelViewSet):
     permission_classes = [
@@ -55,4 +57,4 @@ class JSONWorkflowViewSet(viewsets.ModelViewSet):
     queryset = JSONWorkflow.objects.all()
     serializer_class = JSONWorkflowSerializer
     filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['id', 'workflow']
+    filterset_fields = ['id', 'workflow', 'farm']
