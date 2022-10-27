@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import Login from './Login'
+import Login from '../components/Login'
 // import ResetPassword from "../components/ResetPassword";
 import {
     Text,
@@ -8,13 +8,13 @@ import {
     Flex, 
     Heading
 } from '@chakra-ui/react'
-// import NavBar from "../components/NavBar";
+import NavBar from "../components/navigation/NavBar";
 
 class Signin extends Component {  
   render() {
     return (
     <div>
-      {/* <NavBar/> */}
+      <NavBar/>
       <Flex width="full" align="center" justifyContent="center">
         <Box>
           <Box textAlign="center">
