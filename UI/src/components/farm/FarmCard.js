@@ -19,7 +19,7 @@ function FarmCard(props) {
 
     const handleClick = () => {
         setFarm(props.farmBody.farm)
-        navigate('/workflow')
+        navigate('/workflow-list')
     }
     // const date = new Date(props.postBody.date_posted)
     // //const [dateString, timeString, wish] = useDate(date)

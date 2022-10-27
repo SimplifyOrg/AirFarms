@@ -2,17 +2,20 @@ import React, {useState, useEffect, useContext} from 'react'
 import {
     Grid,
     GridItem,
-    Box
+    Box,
+    Text
 } from '@chakra-ui/react'
 import FarmCard from './FarmCard'
 import CreateFarmCard from './CreateFarmCard'
 import {AuthProvider} from '../../utils/AuthProvider'
 import UserContext from '../../utils/UserContext'
+import NavBar from '../navigation/NavBar'
 
 function FarmList(props) {
 
     const { user } = useContext(UserContext);
     let initialFarms = []
+    let initialFarmsSet = new Set()
     const [farmList, SetFarmList] = useState(initialFarms)
 
     useEffect(() => {
@@ -40,9 +43,13 @@ function FarmList(props) {
                         const farmDetail = {
                             farm : res.data[i],
                             farmpicture : resPic.data
-                        }           
-                        initialFarms.push(farmDetail)
-                        SetFarmList(initialFarms.slice())
+                        }
+                        if(!initialFarmsSet.has(farmDetail.farm.id))
+                        {
+                            initialFarmsSet.add(farmDetail.farm.id)
+                            initialFarms.push(farmDetail)
+                            SetFarmList(initialFarms.slice())
+                        }
                     })
                     .catch(error => {
                         console.log(error);
@@ -60,10 +67,13 @@ function FarmList(props) {
     }, []);
 
     return (
+
+        <NavBar>
         <Box 
             id="farmList"
             p="6"
             maxH="600px"
+            alignItems="center"
             borderWidth="2px"
             borderRadius="lg"
             overflowY="auto"
@@ -83,9 +93,12 @@ function FarmList(props) {
                 }
                 }}
             >
-        <Grid templateColumns='repeat(5, 1fr)' gap={6}>
+        <Grid templateColumns='repeat(4, 1fr)' gap={6}>
+        <GridItem>
+            <CreateFarmCard/>
+        </GridItem>
         {
-            farmList.length === 0 ? <p>Loading...</p>: farmList.map((farmBody, idx) => {
+            farmList.length === 0 ? <Text>No activity here, add farms...</Text>: farmList.map((farmBody, idx) => {
             return(
                 <GridItem>
                         <FarmCard key={idx} farmBody={farmBody}/>
@@ -93,11 +106,10 @@ function FarmList(props) {
             )
             })
         }
-        <GridItem>
-            <CreateFarmCard/>
-        </GridItem>
+        
         </Grid>
         </Box>
+        </NavBar>
     )
 }
 
