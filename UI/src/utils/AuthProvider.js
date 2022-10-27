@@ -10,6 +10,7 @@ export const AuthProvider = () => {
 
     const login = (accessToken, refreshToken) => {
         tokenProvider.setToken(accessToken, refreshToken);
+        document.cookie = `airfarms_access_token=${accessToken};airfarms_refresh_token=${refreshToken};path=/`;
     };
     
     const logout = () => {
@@ -36,7 +37,7 @@ export const AuthProvider = () => {
               'Content-Type': 'application/json'
             }
           }
-        authPost(`/account/token/refresh/`, tokenRefresh, config, true)
+        await authPost(`/account/token/refresh/`, tokenRefresh, config, true)
         .then(res =>{            
             login(res.data.access, res.data.refresh)
 
@@ -53,16 +54,22 @@ export const AuthProvider = () => {
     
     const fetchValidToken = async () =>
     {
-        const token = await tokenProvider.getToken();
-        const payload = getPayload(token.accessToken);
-      
-        const expiration = new Date(payload.exp);
+        // const token = await tokenProvider.getToken();
+        // const payloadText = getPayload(token.accessToken);
+        // const payload = JSON.parse(payloadText)
+        // const expiration = new Date(payload.exp);
         const now = new Date();
         const fourMinutes = 1000 * 60 * 4;
-        
-        if(expiration.getTime() - now.getTime() > fourMinutes ){
-            updateToken();
-        } 
+        let lastFetch = sessionStorage.getItem("lastFetch");
+        if(lastFetch !== undefined)
+        {
+            const lastFetchTime = new Date(lastFetch)
+            
+            if(lastFetchTime !== undefined && now.getTime() - lastFetchTime.getTime()  > fourMinutes ){
+                await updateToken();
+                sessionStorage.setItem("lastFetch", new Date());
+            }
+        }
     }
 
     const authPost = async (url, body, init, isLogin) => {
@@ -104,6 +111,23 @@ export const AuthProvider = () => {
         return axios.patch(location, body, init)      
     };
 
+    const authPut = async (url, body, init) => {
+        
+        
+        init = init || {};
+        await fetchValidToken();
+        const token = await tokenProvider.getToken();
+        let domain = `http://127.0.0.1:8000`;
+        //let domain = `http://airfa-loadb-k74y8ct6ljs9-46c5c512b06feb5a.elb.ap-south-1.amazonaws.com:8000`;
+        let location = domain.concat("", url);
+        init.headers = {
+            ...init.headers,
+            Authorization: `Bearer ${token.accessToken}`,
+        };
+        
+        return axios.put(location, body, init)      
+    };
+
     const authGet = async (url, init) => {
         
         init = init || {};
@@ -143,6 +167,7 @@ export const AuthProvider = () => {
         authPost,
         authPatch,
         authGet,
+        authPut,
         login,
         logout
     };

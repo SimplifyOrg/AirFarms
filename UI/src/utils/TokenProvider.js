@@ -7,7 +7,7 @@ export const TokenProvider = () => {
     /* Implementation */
     const _token = {
         accessToken:'',
-        refreshToken: ''
+        refreshToken: '',
     }
 
     //const secret = useAccessToken()
@@ -54,7 +54,7 @@ export const TokenProvider = () => {
         
         const token = {
             accessToken: accessToken,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
             };
         if (token) 
         {
