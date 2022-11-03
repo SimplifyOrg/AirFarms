@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react'
+import React, {useState, useEffect, useContext, useCallback} from 'react'
 import {
     Grid,
     GridItem,
@@ -17,6 +17,51 @@ function FarmList(props) {
     let initialFarms = []
     let initialFarmsSet = new Set()
     const [farmList, SetFarmList] = useState(initialFarms)
+
+    const updateFarmList = useCallback ((farm) => {
+        if(user)
+        {
+            let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+            }
+            const authProvider = AuthProvider()
+
+            authProvider.authGet(`/farm/perform/manage/?user=${user.data.id}`, config)
+            .then(res => {
+                console.log(res);
+                console.log(res.data);
+                for(let i = 0; i <  res.data.length; ++i)
+                {
+                    authProvider.authGet(`/farm/perform/manage/farmpicture/?farm=${res.data[i].id}`, config)
+                    .then(resPic => {
+                        console.log(resPic);
+                        console.log(resPic.data);
+                        const farmDetail = {
+                            farm : res.data[i],
+                            farmpicture : resPic.data
+                        }
+                        if(!initialFarmsSet.has(farmDetail.farm.id))
+                        {
+                            initialFarmsSet.add(farmDetail.farm.id)
+                            initialFarms.push(farmDetail)
+                            SetFarmList(initialFarms.slice())
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        console.log(error.data);
+                    })
+                }            
+            })
+            .catch(error => {
+                console.log(error);
+                console.log(error.data);
+            })
+        }
+
+    }, [])
 
     useEffect(() => {
         if(user)
@@ -71,7 +116,6 @@ function FarmList(props) {
         <NavBar>
         <Box 
             id="farmList"
-            p="6"
             maxH="600px"
             alignItems="center"
             borderWidth="2px"
@@ -95,7 +139,7 @@ function FarmList(props) {
             >
         <Grid templateColumns='repeat(4, 1fr)' gap={6}>
         <GridItem>
-            <CreateFarmCard/>
+            <CreateFarmCard updateFarmList={updateFarmList}/>
         </GridItem>
         {
             farmList.length === 0 ? <Text>No activity here, add farms...</Text>: farmList.map((farmBody, idx) => {

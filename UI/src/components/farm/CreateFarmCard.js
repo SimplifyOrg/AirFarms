@@ -59,7 +59,7 @@ function CreateFarmCard(props) {
                             <PopoverHeader>Header</PopoverHeader>
                             <PopoverCloseButton />
                             <PopoverBody>
-                                <NewFarm/>
+                                <NewFarm updateFarmList={props.updateFarmList}/>
                             </PopoverBody>
                             </PopoverContent>
                         </Portal>

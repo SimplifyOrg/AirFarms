@@ -10,7 +10,7 @@ import {
 import {AuthProvider} from '../../utils/AuthProvider'
 import UserContext from '../../utils/UserContext'
 
-function NewFarm() {
+function NewFarm(props) {
 
     const { user } = useContext(UserContext);
 
@@ -74,6 +74,7 @@ function NewFarm() {
                 console.log(resPic.data);
                 // dispatch(farmAction(res.data));
                 // history.push('/create-farm')
+                props.updateFarmList(res.data)
             })
             .catch(error =>{
                 console.log(error);

@@ -44,7 +44,7 @@ function FarmCard(props) {
                 onClick={handleClick}
                 borderWidth='1px'>
                     <VStack>
-                        <Text noOfLines={1}>{props.farmBody.farm.description}</Text>  
+                        <Text noOfLines={1}>{props.farmBody.farm.name}</Text>  
                         <Image 
                         h={'120px'}
                         w={'full'}
