@@ -2,15 +2,19 @@ import React, { useEffect, useState } from "react"
 import {TokenProvider} from './TokenProvider'
 import {decode as atob, encode as btoa} from 'base-64'
 import axios from 'axios';
+import useLocalStorage from './useLocalStorage'
 axios.defaults.withCredentials = true;
 
 export const AuthProvider = () => {
 
     const tokenProvider = TokenProvider();
+    const {setLocalStorage, getLocalStorage} = useLocalStorage()
 
     const login = (accessToken, refreshToken) => {
         tokenProvider.setToken(accessToken, refreshToken);
         document.cookie = `airfarms_access_token=${accessToken};airfarms_refresh_token=${refreshToken};path=/`;
+        setLocalStorage("airfarms_refresh_token", refreshToken)
+        setLocalStorage("airfarms_access_token", accessToken)
     };
     
     const logout = () => {
@@ -23,29 +27,49 @@ export const AuthProvider = () => {
         // The middle part is a base64 encoded JSON
         // decode the base64 
         return atob(jwt.split(".")[1])
-    }
+    }  
 
     const updateToken = async () =>
     {
         const token = await tokenProvider.getToken();
+        let refreshToken;
+        if(token?.refreshToken === undefined || token?.refreshToken === '')
+        {
+            refreshToken = document.cookie.replace(/(?:(?:^|.*;\s*)airfarms_refresh_token\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+            if(token?.refreshToken === undefined || token?.refreshToken === '' )
+            {
+                refreshToken = getLocalStorage("airfarms_refresh_token")
+            }
+        }
+        else
+        {
+            refreshToken = token.refreshToken;
+        }
+        
         const tokenRefresh = {
-            refresh: token.refreshToken
-          };
+            refresh: refreshToken
+        };
         // console.log(user);
         let config = {
             headers: {
               'Content-Type': 'application/json'
             }
-          }
+        }
         await authPost(`/account/token/refresh/`, tokenRefresh, config, true)
         .then(res =>{            
             login(res.data.access, res.data.refresh)
-
         })
         .catch(error => {
             // console.log("In catch");
-            // console.log(error);
-            // console.log(error.data);
+            console.log(error);
+            console.log(error.data);
+            document.cookie="name=airfarms_access_token;max-age=0";
+            document.cookie="name=airfarms_refresh_token;max-age=0";
+            setLocalStorage("airfarms_refresh_token", '')
+            setLocalStorage("airfarms_access_token", '')
+            setLocalStorage("user", 'user')
+            setLocalStorage("workflow", 'workflow')
+            setLocalStorage("farm", 'farm')
             //dispatch(userAction('{}'));
             // setErrorFlag(true)
             // setError(error)
@@ -61,7 +85,7 @@ export const AuthProvider = () => {
         const now = new Date();
         const fourMinutes = 1000 * 60 * 4;
         let lastFetch = sessionStorage.getItem("lastFetch");
-        if(lastFetch !== undefined)
+        if(lastFetch !== undefined && lastFetch !== null)
         {
             const lastFetchTime = new Date(lastFetch)
             
@@ -70,12 +94,22 @@ export const AuthProvider = () => {
                 sessionStorage.setItem("lastFetch", new Date());
             }
         }
+        else
+        {
+            await updateToken();
+            sessionStorage.setItem("lastFetch", new Date());
+        }
     }
+
+    // window.onload = fetchValidToken;
+    window.addEventListener("load", (event) => {
+        fetchValidToken();
+    });
 
     const authPost = async (url, body, init, isLogin) => {
         
-        let domain = `http://127.0.0.1:8000`;
-        //let domain = `http://airfa-loadb-k74y8ct6ljs9-46c5c512b06feb5a.elb.ap-south-1.amazonaws.com:8000`;
+        // let domain = `http://127.0.0.1:8000`;
+        let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
         let location = domain.concat("", url);
         init = init || {};
         if(!isLogin)
@@ -100,8 +134,8 @@ export const AuthProvider = () => {
         init = init || {};
         await fetchValidToken();
         const token = await tokenProvider.getToken();
-        let domain = `http://127.0.0.1:8000`;
-        //let domain = `http://airfa-loadb-k74y8ct6ljs9-46c5c512b06feb5a.elb.ap-south-1.amazonaws.com:8000`;
+        // let domain = `http://127.0.0.1:8000`;
+        let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
         let location = domain.concat("", url);
         init.headers = {
             ...init.headers,
@@ -117,8 +151,8 @@ export const AuthProvider = () => {
         init = init || {};
         await fetchValidToken();
         const token = await tokenProvider.getToken();
-        let domain = `http://127.0.0.1:8000`;
-        //let domain = `http://airfa-loadb-k74y8ct6ljs9-46c5c512b06feb5a.elb.ap-south-1.amazonaws.com:8000`;
+        // let domain = `http://127.0.0.1:8000`;
+        let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
         let location = domain.concat("", url);
         init.headers = {
             ...init.headers,
@@ -133,8 +167,8 @@ export const AuthProvider = () => {
         init = init || {};
         await fetchValidToken();
         const token = await tokenProvider.getToken();
-        let domain = `http://127.0.0.1:8000`;
-        //let domain = `http://airfa-loadb-k74y8ct6ljs9-46c5c512b06feb5a.elb.ap-south-1.amazonaws.com:8000`;
+        // let domain = `http://127.0.0.1:8000`;
+        let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
         let location = domain.concat("", url);
         init.headers = {
             ...init.headers,
