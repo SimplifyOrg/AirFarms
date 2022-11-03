@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import {AuthProvider} from '../utils/AuthProvider'
 import UserContext from '../utils/UserContext'
-import { useCookies } from 'react-cookie';
+// import { useCookies } from 'react-cookie';
 // import { useDispatch } from 'react-redux';
 // import { userAction } from '../storeActions';
 
@@ -18,7 +18,7 @@ export default function Login(props) {
 
     const history = useNavigate()
     const { user, setUser } = useContext(UserContext);
-    const [cookies, setCookie] = useCookies(['airfarms']);
+    // const [cookies, setCookie] = useCookies(['airfarms']);
     
     const initialValues = {
         username:'',
@@ -51,8 +51,9 @@ export default function Login(props) {
                 picture : res.data.profilepicture
             }
             setUser(userData)
-            setCookie('airfarms_access_token', res.data.access, { samesite : 'lax' });
-            setCookie('airfarms_refresh_token', res.data.refresh, { samesite : 'lax' });
+            // setCookie('airfarms_access_token', res.data.access, { samesite : 'lax' });
+            // setCookie('airfarms_refresh_token', res.data.refresh, { samesite : 'lax' });
+            // document.cookie = `airfarms_access_token=${accessToken};airfarms_refresh_token=${refreshToken};path=/`;
             authProvider.login(res.data.access, res.data.refresh)
             sessionStorage.setItem("lastFetch", new Date());            
             
