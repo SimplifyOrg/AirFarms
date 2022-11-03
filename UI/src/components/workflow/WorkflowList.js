@@ -57,7 +57,6 @@ function WorkflowList(props) {
         <NavBar>
             <Box 
                 id="workflowList"
-                p="6"
                 maxH="600px"
                 borderWidth="2px"
                 borderRadius="lg"

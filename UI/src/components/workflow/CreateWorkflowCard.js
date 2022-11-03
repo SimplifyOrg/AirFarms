@@ -13,7 +13,7 @@ import {
     PopoverCloseButton,
 } from '@chakra-ui/react'
 import { AddIcon } from '@chakra-ui/icons'
-import NewFarm from './NewWorkflow'
+import NewWorkflow from './NewWorkflow'
 import UserContext from '../../utils/UserContext'
 
 function CreateWorkflowCard(props) {
@@ -59,7 +59,7 @@ function CreateWorkflowCard(props) {
                             <PopoverHeader>New Workflow</PopoverHeader>
                             <PopoverCloseButton />
                             <PopoverBody>
-                                <NewFarm/>
+                                <NewWorkflow/>
                             </PopoverBody>
                             </PopoverContent>
                         </Portal>
