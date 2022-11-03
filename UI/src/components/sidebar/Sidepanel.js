@@ -49,11 +49,11 @@ function Sidepanel() {
                             <Text>Workflows</Text>
                         </Link>
                     </Flex>
-                    <Flex className='sidebar-items'>
+                    {/* <Flex className='sidebar-items'>
                         <Link _hover={{textDecor:'none'}}>
                             <Text>Calender</Text>
                         </Link>
-                    </Flex>
+                    </Flex> */}
                 </Flex>
             </Flex>
             <Flex flexDir="column" alignItems="center" mb={10} mt={5}>
