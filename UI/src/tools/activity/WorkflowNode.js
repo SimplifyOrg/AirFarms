@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useState, useEffect} from 'react'
-import {Handle, Position, useUpdateNodeInternals, useNodes } from 'react-flow-renderer'
+import {Handle, Position, useUpdateNodeInternals, useNodes, useReactFlow } from 'react-flow-renderer'
 import { 
     Accordion,
     AccordionItem, 
@@ -26,10 +26,12 @@ import { MinusIcon, AddIcon, ArrowRightIcon } from '@chakra-ui/icons'
 import Work from './Work';
 import NodeContext from '../../utils/NodeContext';
 import FarmContext from '../../utils/FarmContext';
+import UserContext from '../../utils/UserContext';
 import { AuthProvider } from '../../utils/AuthProvider';
 import WorkflowContext from '../../utils/WorkflowContext';
 import JsonFlowContext from '../../utils/JsonFlowContext'
 import EditableComponent from '../../components/EditableComponent';
+import useWorflow from './useWorflow';
 
 const handleStyle = { left: 10 };
 
@@ -52,7 +54,10 @@ function WorkflowNode({id, data}) {
     const {node} = useContext(NodeContext)
     const {jsonFlow, setJsonFlow} = useContext(JsonFlowContext)
     const {farm} = useContext(FarmContext)
+    const {user} = useContext(UserContext)
     const {workflow} = useContext(WorkflowContext)
+    const reactFlowInstance = useReactFlow();
+    const {saveWorkflow} = useWorflow(farm, user, reactFlowInstance.setNodes, reactFlowInstance.setEdges)
     // const {workflow} = useContext(WorkflowContext)
 
     useEffect(() => {
@@ -206,6 +211,7 @@ function WorkflowNode({id, data}) {
                     currWorkflow.nodes[nodeIndex].data.works[i] = work;
                     // setWorkflow(JSON.stringify(workflowObj))
                     localStorage.setItem(workflow, JSON.stringify(currWorkflow));
+                    saveWorkflow();
                     // patchWorkflow(currWorkflow)
                     break;
                 }
@@ -279,6 +285,7 @@ function WorkflowNode({id, data}) {
                     }
                     // setWorkflow(JSON.stringify(currWorkflow))
                     localStorage.setItem(workflow, JSON.stringify(currWorkflow));
+                    saveWorkflow();
                     setJsonFlow(JSONdata)
                     updateNodeInternals(id)
                     // patchWorkflow(currWorkflow)

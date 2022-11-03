@@ -5,20 +5,27 @@ import * as Yup from 'yup'
 import { HStack, Button, Select, Wrap, FormControl } from '@chakra-ui/react';
 import FarmContext from '../../utils/FarmContext'
 import WorkflowContext from '../../utils/WorkflowContext'
+import UserContext from '../../utils/UserContext';
 import Approver from './Approver';
 import { AuthProvider } from '../../utils/AuthProvider';
+import { useReactFlow } from 'react-flow-renderer';
+import useWorflow from './useWorflow';
+
 
 function Transition(props) {
 
     let initialApprovers = []
     let initSet = new Set()
     const { farm } = useContext(FarmContext);
-    const { workflow, setWorkflow } = useContext(WorkflowContext);
+    const { workflow } = useContext(WorkflowContext);
+    const { user } = useContext(UserContext);
     const [transitionid, SetTransitionid] = useState(-1);
     let initialApprovals = []
     let initApprovals = new Map()
     const [approvals, SetAppovals] = useState(initialApprovals)
     const [approvers, SetApprovers] = useState(initialApprovers)
+    const reactFlowInstance = useReactFlow();
+    const {saveWorkflow} = useWorflow(farm, user, reactFlowInstance.setNodes, reactFlowInstance.setEdges)
 
     const getTransitionId = () => {
         SetTransitionid(transitionid+1)
@@ -96,6 +103,31 @@ function Transition(props) {
         }
     }, [])
 
+    const sendNotification = (transitionApproval) => {
+        const authProvider = AuthProvider()
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+
+        const body = {
+            sender: user.data.id,
+            receiver: transitionApproval.approver,
+            notification_type: '1'
+        }
+
+        authProvider.authPost(`/notification/data/handle/`, body, config, false)
+        .then(res =>{
+            console.log(res);
+            console.log(res.data);
+        })
+        .catch(error => {
+            console.log(error);
+            console.log(error.data);
+        })
+    }
+
     const addTransitionApproval = (transitionApproval) => {
 
         // Get current workflow's JSON object
@@ -125,6 +157,8 @@ function Transition(props) {
             // SetAppovals(currWorkflow.edges[edgeIndex].data.transition.transitionapprovals)
             SetAppovals(initialApprovals.slice())
             localStorage.setItem(workflow, JSON.stringify(currWorkflow));
+            sendNotification(transitionApproval)
+            saveWorkflow()
             // setWorkflow(JSON.stringify(currWorkflow))
         }
     }

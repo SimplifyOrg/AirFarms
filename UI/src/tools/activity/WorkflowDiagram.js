@@ -14,8 +14,10 @@ import WorkflowNode from './WorkflowNode';
 import ButtonEdge from './ButtonEdge'
 import UserContext from '../../utils/UserContext';
 import WorkflowContext from '../../utils/WorkflowContext';
+import FarmContext from '../../utils/FarmContext';
 // import FarmContext from '../../utils/FarmContext';
 import NodeContext from '../../utils/NodeContext';
+import useWorflow from './useWorflow';
 
 function WorkflowDiagram(props) {
     
@@ -23,6 +25,7 @@ function WorkflowDiagram(props) {
     // const {farm} = useContext(FarmContext)
     const {node, setNode} = useContext(NodeContext)
     const {workflow} = useContext(WorkflowContext)
+    const {farm} = useContext(FarmContext)
     const nodeTypes = useMemo(() => ({ workflowNode: WorkflowNode }), []);
     const edgeTypes = useMemo(() => ({ buttonedge: ButtonEdge }), []);
     
@@ -98,6 +101,7 @@ function WorkflowDiagram(props) {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [reactFlowInstance, SetReactFlowInstance] = useState(null)
+    const {saveWorkflow} = useWorflow(farm, user, setNodes, setEdges)
     // const { setViewport } = useReactFlow();
 
     useEffect(() => {
@@ -141,14 +145,16 @@ function WorkflowDiagram(props) {
                 transition: 
                 {
                     id: "1",
-                    previous: params.source,
-                    next: params.target,
+                    previous: parseInt(params.source),
+                    next: parseInt(params.target),
                     associatedFlow: "1",
                     need_approval: false,
                     transitionapprovals: []
                 }
             }
         }
+        edgeParams.source = parseInt(edgeParams.source)
+        edgeParams.target = parseInt(edgeParams.target)
         let copyEdgeParams = edgeParams
         setEdges((eds) => addEdge(edgeParams, eds))
         addEdgeLocal(copyEdgeParams)
@@ -169,6 +175,7 @@ function WorkflowDiagram(props) {
         {
             currWorkflow.nodes.push(nodeObj)
             localStorage.setItem(workflow, JSON.stringify(currWorkflow));
+            saveWorkflow();
             // setWorkflow(JSON.stringify(currWorkflow))
         }
     }
@@ -183,6 +190,7 @@ function WorkflowDiagram(props) {
         {
             currWorkflow.edges.push(edgeObj)
             localStorage.setItem(workflow, JSON.stringify(currWorkflow));
+            saveWorkflow();
             // setWorkflow(JSON.stringify(currWorkflow))
         }
     }
@@ -197,22 +205,22 @@ function WorkflowDiagram(props) {
         }, []
     );
 
-    useEffect(() => {
-        setNodes((nds) =>
-          nds.map((node) => {
-            if (node.id === '1') {
-              // it's important that you create a new object here
-              // in order to notify react flow about the change
-              node.data = {
-                ...node.data,
-                label: 'nodeName',
-              };
-            }
+    // useEffect(() => {
+    //     setNodes((nds) =>
+    //       nds.map((node) => {
+    //         if (node.id === '1') {
+    //           // it's important that you create a new object here
+    //           // in order to notify react flow about the change
+    //           node.data = {
+    //             ...node.data,
+    //             label: 'nodeName',
+    //           };
+    //         }
     
-            return node;
-          })
-        );
-      }, [setNodes]);
+    //         return node;
+    //       })
+    //     );
+    //   }, [setNodes]);
 
     const onNodeDragStop = (evt, node) => {
         // on drag stop, we update position
@@ -239,6 +247,7 @@ function WorkflowDiagram(props) {
                 {
                     currWorkflow.nodes[nodeIndex].position = { ...node.position };
                     localStorage.setItem(workflow, JSON.stringify(currWorkflow));
+                    // saveWorkflow();
                 }
                 
             }
