@@ -80,6 +80,11 @@ CSRF_COOKIE_SAMESITE = 'lax'
 SESSION_COOKIE_SAMESITE = 'lax'
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
+CSRF_TRUSTED_ORIGINS = [
+    'http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com',
+    'http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000/admin/login/?next=/admin/',
+    'https://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com',
+]
 
 ROOT_URLCONF = 'machhli.urls'
 
@@ -106,13 +111,25 @@ ASGI_APPLICATION = 'machhli.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.contrib.gis.db.backends.postgis',
+#         'NAME': 'postgis_33_gis',
+#         'USER': 'postgres',
+#         'PASSWORD': 'kislay@12',
+#         'HOST': '',
+#         'PORT': '5432',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'postgis_33_gis',
+        # 'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'workflowdb',
         'USER': 'postgres',
-        'PASSWORD': 'kislay@12',
-        'HOST': '',
+        'PASSWORD': 'kislay12',
+        'HOST': 'workflowdb.cf2quzofcfqu.ap-south-1.rds.amazonaws.com',
         'PORT': '5432',
     }
 }

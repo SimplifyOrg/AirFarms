@@ -25,6 +25,7 @@ urlpatterns = [
     path('farm/', include('farm.urls')),
     path('discussion/', include('discussion.urls')),
     path('activity/', include('activity.urls')),
+    path('notification/', include('notifications.urls')),
 ]
 
 if settings.DEBUG:
