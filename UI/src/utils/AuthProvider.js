@@ -57,19 +57,19 @@ export const AuthProvider = () => {
         }
         await authPost(`/account/token/refresh/`, tokenRefresh, config, true)
         .then(res =>{            
-            login(res.data.access, res.data.refresh)
+            login(res.data.access, refreshToken)
         })
         .catch(error => {
             // console.log("In catch");
             console.log(error);
             console.log(error.data);
-            document.cookie="name=airfarms_access_token;max-age=0";
-            document.cookie="name=airfarms_refresh_token;max-age=0";
-            setLocalStorage("airfarms_refresh_token", '')
-            setLocalStorage("airfarms_access_token", '')
-            setLocalStorage("user", 'user')
-            setLocalStorage("workflow", 'workflow')
-            setLocalStorage("farm", 'farm')
+            // document.cookie="name=airfarms_access_token;max-age=0";
+            // document.cookie="name=airfarms_refresh_token;max-age=0";
+            // setLocalStorage("airfarms_refresh_token", '')
+            // setLocalStorage("airfarms_access_token", '')
+            // setLocalStorage("user", 'user')
+            // setLocalStorage("workflow", 'workflow')
+            // setLocalStorage("farm", 'farm')
             //dispatch(userAction('{}'));
             // setErrorFlag(true)
             // setError(error)
