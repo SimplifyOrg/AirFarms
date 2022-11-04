@@ -1,7 +1,14 @@
 import React, {useContext, useState, useEffect, useCallback} from 'react'
 import WorkflowDiagram from './activity/WorkflowDiagram'
 // import NavBar from '../components/NavBar'
-import {Box} from '@chakra-ui/react'
+import {
+    Box,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink
+} from '@chakra-ui/react'
+import {Link} from 'react-router-dom'
+import { ChevronRightIcon } from '@chakra-ui/icons';
 import { useLocation } from "react-router-dom"
 import FarmContext from '../utils/FarmContext'
 import WorkflowContext from '../utils/WorkflowContext'
@@ -191,6 +198,20 @@ function Workflow() {
 
   return (
         <NavBar>
+            <Breadcrumb marginBlock={1} spacing='8px' separator={<ChevronRightIcon color='gray.500' />}>
+                <BreadcrumbItem>
+                    <BreadcrumbLink as={Link} to='/dashboard'>Dashboard</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbItem isCurrentPage>
+                    <BreadcrumbLink as={Link} to='/farms'>Farms</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbItem isCurrentPage>
+                    <BreadcrumbLink as={Link} to='/workflow-list'>Workflows</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbItem isCurrentPage>
+                    <BreadcrumbLink as={Link} to='/workflow'>{currworkflow === undefined || currworkflow === ''? 'New workflow':currworkflow.workflow.title}</BreadcrumbLink>
+                </BreadcrumbItem>
+            </Breadcrumb>
             <Box 
             display='flex' 
             p='3' 

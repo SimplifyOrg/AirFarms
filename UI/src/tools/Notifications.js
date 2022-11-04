@@ -71,17 +71,19 @@ function Notifications() {
             <MenuButton ml={8}>
                 { <NotificationBadge count={notifications.length}/>}
             </MenuButton>
-            <MenuList>
-            {
-                notifications.length === 0 ? <MenuItem>All catched up!</MenuItem>: Array.from(notifications).map((notificationBody, idx) => {
-                return(
-                    <MenuItem>
-                        <NotificationItem key={idx} notificationBody={notificationBody}/>
-                    </MenuItem>
-                )
-                })
+            {notifications.length === 0 ? <></>:
+                <MenuList>
+                {
+                    Array.from(notifications).map((notificationBody, idx) => {
+                    return(
+                        <MenuItem>
+                            <NotificationItem key={idx} notificationBody={notificationBody}/>
+                        </MenuItem>
+                    )
+                    })
+                }
+                </MenuList>
             }
-            </MenuList>
         </Menu>
     )
 }
