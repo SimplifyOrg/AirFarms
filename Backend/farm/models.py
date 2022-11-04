@@ -10,6 +10,10 @@ class Farm(models.Model):
     description = models.TextField(null=True,blank=True)
     date_created = models.DateTimeField(default=timezone.now)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    archived = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('user', 'name', 'archived')
 
     def __unicode__(self):
         return self.name

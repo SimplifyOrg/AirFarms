@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group
 class FarmSerializer(serializers.ModelSerializer):
     class Meta:
         model = Farm
-        fields = ('id', 'name', 'description', 'user', 'date_created')
+        fields = ('id', 'name', 'description', 'user', 'date_created', 'archived')
     def create(self, validated_data):
         farm = Farm(
             name = validated_data['name'],

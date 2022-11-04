@@ -1,5 +1,5 @@
 from account.models import User
-from account.serializers import UserSerializer
+from rest_framework.filters import OrderingFilter
 from .models import Farm, FarmDiscussionBoard, FarmGroups, FarmPicture
 from rest_framework import viewsets, permissions
 from farm.serializers import FarmDiscussionBoardSerializer, FarmGroupsSerializer, FarmPictureSerializer, FarmSerializer
@@ -13,8 +13,10 @@ class FarmViewSet(viewsets.ModelViewSet):
     #parser_classes = (MultiPartParser, FormParser)
     queryset = Farm.objects.all()
     serializer_class = FarmSerializer
-    filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['user']
+    filter_backends = [DjangoFilterBackend, OrderingFilter,]
+    filterset_fields = ['user', 'name', 'id', 'archived']
+    ordering_fields = ['date_created', 'name']
+
 
     # def get_queryset(self):
     #     return Farm.objects.filter(user_id=self.request.user.id)
