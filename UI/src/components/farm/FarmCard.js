@@ -4,11 +4,14 @@ import {
     VStack,
     Box,
     Image,
-    useColorModeValue
+    useColorModeValue,
+    HStack,
+    CloseButton
 } from '@chakra-ui/react'
-import {Link, useNavigate} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 import UserContext from '../../utils/UserContext'
 import FarmContext from '../../utils/FarmContext'
+import {AuthProvider} from '../../utils/AuthProvider'
 
 function FarmCard(props) {
     const locale = 'en';
@@ -21,18 +24,33 @@ function FarmCard(props) {
         setFarm(props.farmBody.farm)
         navigate('/workflow-list')
     }
-    // const date = new Date(props.postBody.date_posted)
-    // //const [dateString, timeString, wish] = useDate(date)
-    // const day = date.toLocaleDateString(locale, { weekday: 'long' });
-    // const dateString = `${day}, ${date.getDate()} ${date.toLocaleDateString(locale, { month: 'long' })}\n\n`;
-  
-    // const hour = date.getHours();
-    // const wish = `Good ${(hour < 12 && 'Morning') || (hour < 17 && 'Afternoon') || 'Evening'}, `;
-  
-    // const time = date.toLocaleTimeString(locale, { hour: 'numeric', hour12: true, minute: 'numeric' });
-    //const dateString = new Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'}).format(date)
-    return (
-        
+
+    const archiveFarm = () => {
+
+        let data = farm;
+
+        data.archived = true;        
+
+        let config = {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        const authProvider = AuthProvider()
+        authProvider.authPut(`/farm/perform/manage/${farm.id}/`, data, config)
+        .then(res =>{
+            console.log(res);
+            console.log(res.data);
+            navigate('/farms')        
+        })
+        .catch(error => {
+            console.log(error);
+            console.log(error.data);
+        })
+
+    }
+    
+    return (        
             
                 <Box
                 maxW={'270px'}
@@ -44,11 +62,11 @@ function FarmCard(props) {
                 onClick={handleClick}
                 borderWidth='1px'>
                     <VStack>
-                        <Text noOfLines={1}>{props.farmBody.farm.name}</Text>  
+                        <HStack><Text noOfLines={1}>{props.farmBody.farm.name}</Text><CloseButton size='sm' onClick={archiveFarm}/></HStack>
                         <Image 
                         h={'120px'}
                         w={'full'}
-                        src={props.farmBody.farmpicture.image}
+                        src={props.farmBody.farmpicture?.image}
                         objectFit={'cover'} />
                     </VStack>
                 </Box>
