@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import MenuItems from './MenuItems'
-import { Box } from "@chakra-ui/react"
+import { Box, useColorModeValue } from "@chakra-ui/react"
 import { useColorMode } from "@chakra-ui/color-mode";
 import { MoonIcon, SunIcon, BellIcon } from '@chakra-ui/icons'
 import {IconButton} from '@chakra-ui/button'
@@ -16,6 +16,8 @@ function Header() {
     
     const {user} = useContext(UserContext)
 
+    const [colormode, setColormode] = useState(useColorModeValue('orange.600', 'orange.400'))
+
     useEffect(() => {
         if(user?.data?.id !== undefined)
         {
@@ -26,10 +28,10 @@ function Header() {
     {
     return (
             <Box>                
-                {signed ? <MenuItems ml={2} colorScheme={'transparent'} color="orange.400" to="/dashboard">Dashboard</MenuItems>: <MenuItems ml={2} color="orange.400" to="/">Home</MenuItems> }
+                {signed ? <></>: <MenuItems ml={2} color="orange.400" to="/">Home</MenuItems> }
                 <NavMenu loggedin = {signed}/>
                 {signed ? <Notifications/> : <></>}
-                <IconButton colorScheme={'transparent'} backgroundColor='transparent' mr={2} ml={2} icon={isDark ? <SunIcon color="orange.600"/> : <MoonIcon color="orange.600"/>} onClick={toggleColorMode}></IconButton>            
+                <IconButton colorScheme={'transparent'} backgroundColor='transparent' mr={2} ml={2} icon={isDark ? <SunIcon color={colormode}/> : <MoonIcon color={colormode}/>} onClick={toggleColorMode}></IconButton>            
             </Box>
 
         )
