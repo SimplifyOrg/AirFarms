@@ -3,8 +3,13 @@ import {
     Grid,
     GridItem,
     Box,
-    Text
+    Text,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink
 } from '@chakra-ui/react'
+import {Link} from 'react-router-dom'
+import { ChevronRightIcon } from '@chakra-ui/icons';
 import WorkflowCard from './WorkflowCard'
 import CreateWorkflowCard from './CreateWorkflowCard'
 import {AuthProvider} from '../../utils/AuthProvider'
@@ -29,7 +34,7 @@ function WorkflowList(props) {
             }
             }
             const authProvider = AuthProvider()
-            authProvider.authGet(`/activity/json-workflow/handle/?farm=${farm.id}`, config)
+            authProvider.authGet(`/activity/json-workflow/handle/?farm=${farm.id}&&archived=${false}&&ordering=-id`, config)
             .then(res => {
                 console.log(res);
                 console.log(res.data);
@@ -55,6 +60,18 @@ function WorkflowList(props) {
 
     return (
         <NavBar>
+            <Breadcrumb marginBlock={1} spacing='8px' separator={<ChevronRightIcon color='gray.500' />}>
+                <BreadcrumbItem>
+                    <BreadcrumbLink as={Link} to='/dashboard'>Dashboard</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbItem isCurrentPage>
+                    <BreadcrumbLink as={Link} to='/farms'>Farms</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbItem isCurrentPage>
+                    <BreadcrumbLink as={Link} to='/workflow-list'>Workflows</BreadcrumbLink>
+                </BreadcrumbItem>
+            </Breadcrumb>
+            
             <Box 
                 id="workflowList"
                 maxH="600px"
