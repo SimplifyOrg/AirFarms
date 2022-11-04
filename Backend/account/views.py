@@ -16,6 +16,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     filter_backends = [DjangoFilterBackend,]
     filterset_fields = ['id', 'groups']
+    ordering_fields = ['first_name', 'last_name', 'email']
 
 class ProfilePictureViewSet(viewsets.ModelViewSet):
     serializer_class = ProfilePictureSerializer
