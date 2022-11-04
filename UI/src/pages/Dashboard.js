@@ -10,8 +10,13 @@ import {
     StatLabel,
     StatNumber,
     StatHelpText,
-    SimpleGrid
+    SimpleGrid,
+    useColorModeValue,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink
 } from '@chakra-ui/react'
+import { ChevronRightIcon } from '@chakra-ui/icons';
 import NavBar from '../components/navigation/NavBar';
 
 function Dashboard() {
@@ -38,7 +43,7 @@ function Dashboard() {
             }
             const authProvider = AuthProvider()
 
-            authProvider.authGet(`/farm/perform/manage/?user=${user.data.id}`, config)
+            authProvider.authGet(`/farm/perform/manage/?user=${user.data.id}&&archived=${false}`, config)
             .then(res => {
                 console.log(res);
                 console.log(res.data);
@@ -47,6 +52,7 @@ function Dashboard() {
             .catch(error => {
                 console.log(error);
                 console.log(error.data);
+                navigate('/logout')
             })
 
         }
@@ -65,7 +71,7 @@ function Dashboard() {
             }
             const authProvider = AuthProvider()
 
-            authProvider.authGet(`/activity/workflow/handle/?owner=${user.data.id}&&is_production=true&&has_finished=false`, config)
+            authProvider.authGet(`/activity/workflow/handle/?owner=${user.data.id}&&archived=${false}&&is_production=true&&has_finished=false`, config)
             .then(res => {
                 console.log(res);
                 console.log(res.data);
@@ -178,46 +184,51 @@ function Dashboard() {
   return (
     <>
         <NavBar>
-        <Box maxW='4xl'>
-        <SimpleGrid columns={2} spacingX={1} >
-        <Box marginBlock={1} display='flex' bg='orange.100' maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
-            <Stat onClick={handleClickFarms}>
-                <StatLabel>Farms</StatLabel>
-                <StatNumber>{numberFarms}</StatNumber>
-            </Stat>
-            <Stat>
-                <StatLabel>Active Workflows</StatLabel>
-                <StatNumber>{numberWorkflows}</StatNumber>
-            </Stat>
-        </Box>
-        <Box marginBlock={1} display='flex' bg='orange.100' maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
-            <Stat>
-                <StatLabel>Pending Reviews</StatLabel>
-                <StatNumber>{reviews.length}</StatNumber>
-            </Stat>
-        </Box>
-        <Box marginBlock={1} display='flex' bg='orange.100' maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
-            <Stat>
-                <StatLabel>Assigned Works</StatLabel>
-                <StatNumber>{works.length}</StatNumber>
-            </Stat>
-            <Stat>
-                <StatLabel>Overdue Works</StatLabel>
-                <StatNumber>{overdueWorks.length}</StatNumber>
-            </Stat>
-            <Stat>
-                <StatLabel>Halted Works</StatLabel>
-                <StatNumber>{haltedWorks.length}</StatNumber>
-            </Stat>
-        </Box>
-        <Box marginBlock={1} display='flex' bg='orange.100' maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
-            <Stat>
-                <StatLabel>Upcoming Works</StatLabel>
-                <StatNumber>{upcomingWorks.length}</StatNumber>
-            </Stat>
-        </Box>
-        </SimpleGrid>
-        </Box>
+            <Breadcrumb marginBlock={1} spacing='8px'  overflow='hidden' separator={<ChevronRightIcon color='gray.500' />}>
+                <BreadcrumbItem ml={1} isCurrentPage>
+                    <BreadcrumbLink as={Link} to='/dashboard'>Dashboard</BreadcrumbLink>
+                </BreadcrumbItem>
+            </Breadcrumb>
+            <Box maxW='4xl'>
+            <SimpleGrid columns={2} spacingX={1} >
+            <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
+                <Stat onClick={handleClickFarms}>
+                    <StatLabel>Farms</StatLabel>
+                    <StatNumber>{numberFarms}</StatNumber>
+                </Stat>
+                <Stat>
+                    <StatLabel>Active Workflows</StatLabel>
+                    <StatNumber>{numberWorkflows}</StatNumber>
+                </Stat>
+            </Box>
+            <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
+                <Stat>
+                    <StatLabel>Pending Reviews</StatLabel>
+                    <StatNumber>{reviews.length}</StatNumber>
+                </Stat>
+            </Box>
+            <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
+                <Stat>
+                    <StatLabel>Assigned Works</StatLabel>
+                    <StatNumber>{works.length}</StatNumber>
+                </Stat>
+                <Stat>
+                    <StatLabel>Overdue Works</StatLabel>
+                    <StatNumber>{overdueWorks.length}</StatNumber>
+                </Stat>
+                <Stat>
+                    <StatLabel>Halted Works</StatLabel>
+                    <StatNumber>{haltedWorks.length}</StatNumber>
+                </Stat>
+            </Box>
+            <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
+                <Stat>
+                    <StatLabel>Upcoming Works</StatLabel>
+                    <StatNumber>{upcomingWorks.length}</StatNumber>
+                </Stat>
+            </Box>
+            </SimpleGrid>
+            </Box>
      
         </NavBar>
     </>
