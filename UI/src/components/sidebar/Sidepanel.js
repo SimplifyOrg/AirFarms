@@ -6,7 +6,8 @@ import {
     Heading,
     Text,
     Avatar,
-    VStack
+    VStack,
+    useColorModeValue
 } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
 import UserContext from '../../utils/UserContext'
@@ -19,7 +20,7 @@ function Sidepanel() {
         w="100%"
         flexDir="column"
         alignItems="center"
-        backgroundColor="orange.100"
+        backgroundColor={useColorModeValue("orange.100", 'gray.700')}
         color="orange.400"
         maxW="130px"
     >
