@@ -5,7 +5,7 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   Controls,
-  MarkerType
+  Background,
 } from 'react-flow-renderer';
 import Sidebar from './Sidebar';
 import './css/workflow.css'
@@ -18,6 +18,7 @@ import FarmContext from '../../utils/FarmContext';
 // import FarmContext from '../../utils/FarmContext';
 import NodeContext from '../../utils/NodeContext';
 import useWorflow from './useWorflow';
+import {useColorModeValue} from '@chakra-ui/react'
 
 function WorkflowDiagram(props) {
     
@@ -84,9 +85,9 @@ function WorkflowDiagram(props) {
     //     },
     // ];
     
-    const reactFlowStyle = {
-        background: '#f8f8ff',
-    };
+    // const reactFlowStyle = {
+    //     background: useColorModeValue('white', 'gray.800'),
+    // };
 
     const defaultEdgeOptions = { animated: true };
 
@@ -98,6 +99,7 @@ function WorkflowDiagram(props) {
     const proOptions = { hideAttribution: true };
 
     const reactFlowWrapper = useRef(null);
+    const connectingNodeId = useRef(null);
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
     const [reactFlowInstance, SetReactFlowInstance] = useState(null)
@@ -257,6 +259,63 @@ function WorkflowDiagram(props) {
 
       };
 
+    // const onConnectStart = useCallback((_, { nodeId }) => {
+    //     connectingNodeId.current = nodeId;
+    // }, []);
+
+    // const onConnectEnd = useCallback(
+    //     (event) => {
+    //       const targetIsPane = event.target.classList.contains('react-flow__pane');
+    
+    //       if (targetIsPane) {
+    //         const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+    //         // const type = event.dataTransfer.getData('application/reactflow');
+
+    //         // // check if the dropped element is valid
+    //         // if (typeof type === 'undefined' || !type) {
+    //         //     return;
+    //         // }
+
+    //         const position = reactFlowInstance.project({
+    //             x: event.clientX - reactFlowBounds.left,
+    //             y: event.clientY - reactFlowBounds.top,
+    //         });
+    //         // const nodeId = getId()
+    //         let currWorkflow = JSON.parse(localStorage.getItem(workflow));
+    //         const nodeId = `dndnode_${currWorkflow.nodes.length}`
+    //         const newNode = {
+    //             id: nodeId,
+    //             type: 'workflowNode',
+    //             position,
+    //             data: { 
+    //                 label: `${type} node`,
+    //                 title: `${type} node`,
+    //                 notifiers: [user.data.id],
+    //                 notes: "",
+    //                 works: []
+    //             },
+    //         };
+    //         addNode(newNode)
+
+    //         setNodes((nds) => nds.concat(newNode));
+    //         setEdges((eds) => eds.concat({ source: connectingNodeId.current, target: nodeId }));
+    //         // we need to remove the wrapper bounds, in order to get the correct position
+    //         // const { top, left } = reactFlowWrapper.current.getBoundingClientRect();
+    //         // const id = getId();
+    //         // const newNode = {
+    //         //   id,
+    //         //   // we are removing the half of the node width (75) to center the new node
+    //         //   position: project({ x: event.clientX - left - 75, y: event.clientY - top }),
+    //         //   data: { label: `Node ${id}` },
+    //         // };
+    
+    //         // setNodes((nds) => nds.concat(newNode));
+    //         // setEdges((eds) => eds.concat({ id, source: connectingNodeId.current, target: id }));
+    //       }
+    //     },
+    //     []
+    // );
+
     const onDrop = useCallback(
         (event) => {
             event.preventDefault();
@@ -305,6 +364,8 @@ function WorkflowDiagram(props) {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            // onConnectStart={onConnectStart}
+            // onConnectEnd={onConnectEnd}
             onInit={SetReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}
@@ -314,10 +375,11 @@ function WorkflowDiagram(props) {
             edgeTypes={edgeTypes}
             proOptions={proOptions}
             fitView
-            style={reactFlowStyle}
+            // style={reactFlowStyle}
             defaultEdgeOptions={defaultEdgeOptions}
           >
             <Controls />
+            <Background color={useColorModeValue('white', 'gray.800')} variant="lines" gap={6} size={1} />
           </ReactFlow>
         </div>
         <Sidebar patchWorkflow={props.patchWorkflow} setNodes={setNodes} setEdges={setEdges}/>
