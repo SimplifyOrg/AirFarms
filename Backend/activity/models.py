@@ -27,6 +27,7 @@ class Workflow(models.Model):
     farm = ForeignKey(Farm, on_delete=models.CASCADE)
     owner = ForeignKey(User, on_delete=models.CASCADE)
     is_production = models.BooleanField(default=False)
+    archived = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         super(Workflow, self).save()
@@ -61,5 +62,6 @@ class JSONWorkflow(models.Model):
     jsonFlow = models.JSONField()
     workflow = ForeignKey(Workflow, on_delete=models.CASCADE)
     farm = ForeignKey(Farm, on_delete=models.CASCADE)
+    archived = models.BooleanField(default=False)
 
 
