@@ -1,0 +1,12 @@
+[Unit]
+   Description=Machhli daphne service for notifications
+   After=network.target
+
+[Service]
+   Type=simple 
+   User=ubuntu
+   WorkingDirectory=/app  
+   ExecStart=daphne -p 9001 machhli.asgi:application
+
+[Install]
+   WantedBy=multi-user.target
