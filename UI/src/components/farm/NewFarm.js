@@ -5,7 +5,8 @@ import { Button } from "@chakra-ui/button";
 import FormikControl from '../FormikControl';
 import { useHistory } from "react-router-dom";
 import {
-    VStack
+    VStack,
+    useToast
 } from '@chakra-ui/react'
 import {AuthProvider} from '../../utils/AuthProvider'
 import UserContext from '../../utils/UserContext'
@@ -13,6 +14,7 @@ import UserContext from '../../utils/UserContext'
 function NewFarm(props) {
 
     const { user } = useContext(UserContext);
+    const toast = useToast()
 
     // const date = new Date()
     let today = new Date();
@@ -63,6 +65,14 @@ function NewFarm(props) {
         .then(res =>{
             console.log(res);
             console.log(res.data);
+            toast({
+                position: 'top',
+                title: `${res.data.name} farm created`,
+                description: `You can create workflows now.`,
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+              })
             const farmPictureURL = `/farm/perform/manage/farmpicture/`
             const farmPicture = {
                 farm: res.data.id,
@@ -101,6 +111,14 @@ function NewFarm(props) {
         .catch(error => {
             console.log(error);
             console.log(error.data);
+            toast({
+                position: 'top',
+                title: `Farm creation failed!`,
+                description: `Please try again`,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+              })
         })
         onSubmitProps.setSubmitting(false)
         onSubmitProps.resetForm()

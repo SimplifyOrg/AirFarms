@@ -6,7 +6,9 @@ import {
     Text,
     Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbLink
+    BreadcrumbLink,
+    useToast,
+    Skeleton
 } from '@chakra-ui/react'
 import {Link} from 'react-router-dom'
 import { ChevronRightIcon } from '@chakra-ui/icons';
@@ -22,6 +24,8 @@ function FarmList(props) {
     let initialFarms = []
     let initialFarmsSet = new Set()
     const [farmList, SetFarmList] = useState(initialFarms)
+    const toast = useToast()
+    const [loading, setLoading] = useState(true)
 
     const updateFarmList = useCallback ((farm) => {
         if(user)
@@ -32,7 +36,7 @@ function FarmList(props) {
             }
             }
             const authProvider = AuthProvider()
-
+            setLoading(true)
             authProvider.authGet(`/farm/perform/manage/?user=${user.data.id}&&archived=${false}&&ordering=date_created`, config)
             .then(res => {
                 console.log(res);
@@ -62,11 +66,21 @@ function FarmList(props) {
                         console.log(error);
                         console.log(error.data);
                     })
-                }            
+                }
+                setLoading(false)          
             })
             .catch(error => {
                 console.log(error);
                 console.log(error.data);
+                setLoading(false)
+                toast({
+                    position: 'top',
+                    title: `Unable to load all farms`,
+                    description: `Please reaload the page to try again`,
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true,
+                  })
             })
         }
 
@@ -113,11 +127,21 @@ function FarmList(props) {
                         console.log(error);
                         console.log(error.data);
                     })
-                }            
+                }
+                setLoading(false)
             })
             .catch(error => {
                 console.log(error);
                 console.log(error.data);
+                setLoading(false)
+                toast({
+                    position: 'top',
+                    title: `Sorry couldn't get your farms!`,
+                    description: `Please try again in sometime.`,
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: true,
+                  })
             })
 
         }
@@ -158,21 +182,23 @@ function FarmList(props) {
                     }
                     }}
                 >
-            <Grid templateColumns='repeat(4, 1fr)' gap={6}>
-            <GridItem>
-                <CreateFarmCard updateFarmList={updateFarmList}/>
-            </GridItem>
-            {
-                farmList.length === 0 ? <Text>No activity here, add farms...</Text>: farmList.map((farmBody, idx) => {
-                return(
-                    <GridItem>
-                            <FarmCard key={idx} farmBody={farmBody}/>
-                    </GridItem>
-                )
-                })
-            }
-            
-            </Grid>
+                <Skeleton isLoaded={!loading} noOfLines={4} spacing='4'>
+                    <Grid templateColumns='repeat(4, 1fr)' gap={6}>
+                        <GridItem>
+                            <CreateFarmCard updateFarmList={updateFarmList}/>
+                        </GridItem>
+                        {
+                            farmList.length === 0 ? <Text>No activity here, add farms...</Text>: farmList.map((farmBody, idx) => {
+                            return(
+                                <GridItem>
+                                        <FarmCard key={idx} farmBody={farmBody}/>
+                                </GridItem>
+                            )
+                            })
+                        }
+                    
+                    </Grid>
+                </Skeleton>
             </Box>
         </NavBar>
     )
