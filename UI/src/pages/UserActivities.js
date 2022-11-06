@@ -12,15 +12,15 @@ import {
 } from '@chakra-ui/react'
 import {Link} from 'react-router-dom'
 import { ChevronRightIcon } from '@chakra-ui/icons';
-import WorkflowCard from './WorkflowCard'
-import CreateWorkflowCard from './CreateWorkflowCard'
-import {AuthProvider} from '../../utils/AuthProvider'
-import FarmContext from '../../utils/FarmContext'
-import NavBar from '../navigation/NavBar'
+import WorkflowCard from '../components/workflow/WorkflowCard'
+import CreateWorkflowCard from '../components/workflow/CreateWorkflowCard'
+import {AuthProvider} from '../utils/AuthProvider'
+import UserContext from '../utils/UserContext'
+import NavBar from '../components/navigation/NavBar';
 
-function WorkflowList(props) {
+function UserActivities() {
 
-    const { farm } = useContext(FarmContext);
+    const { user } = useContext(UserContext);
     let initialWorkflows = []
     let initSet = new Set()
     const [workflowList, SetWorkflowList] = useState(initialWorkflows)
@@ -28,7 +28,7 @@ function WorkflowList(props) {
     const toast = useToast()
 
     useEffect(() => {
-        if(farm)
+        if(user)
         {
             //Runs only on the first render
 
@@ -38,7 +38,7 @@ function WorkflowList(props) {
             }
             }
             const authProvider = AuthProvider()
-            authProvider.authGet(`/activity/json-workflow/handle/?farm=${farm.id}&&archived=${false}&&ordering=-id`, config)
+            authProvider.authGet(`/activity/json-workflow/handle/?user=${user.data.id}&&archived=${false}&&ordering=-id`, config)
             .then(res => {
                 console.log(res);
                 console.log(res.data);
@@ -72,17 +72,15 @@ function WorkflowList(props) {
 
     }, []);
 
+
     return (
         <NavBar>
             <Breadcrumb marginBlock={1} spacing='8px' separator={<ChevronRightIcon color='gray.500' />}>
                 <BreadcrumbItem>
                     <BreadcrumbLink as={Link} to='/dashboard'>Dashboard</BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbItem>
-                    <BreadcrumbLink as={Link} to='/farms'>Farms</BreadcrumbLink>
-                </BreadcrumbItem>
                 <BreadcrumbItem isCurrentPage>
-                    <BreadcrumbLink as={Link} to='/workflow-list'>Workflows</BreadcrumbLink>
+                    <BreadcrumbLink as={Link} to='/user-workflow-list'>User Activities</BreadcrumbLink>
                 </BreadcrumbItem>
             </Breadcrumb>
             
@@ -110,11 +108,8 @@ function WorkflowList(props) {
                 >
                 <Skeleton isLoaded={!loading} noOfLines={4} spacing='4'>
                     <Grid templateColumns='repeat(5, 1fr)' gap={6}>
-                        <GridItem>
-                            <CreateWorkflowCard/>
-                        </GridItem>
                     {
-                        workflowList.length === 0 ? <Text>No activity here, add workflows...</Text>: workflowList.map((workflowBody, idx) => {
+                        workflowList.length === 0 ? <Text>No activities owned by you...</Text>: workflowList.map((workflowBody, idx) => {
                         return(
                             <GridItem>
                                     <WorkflowCard key={idx} workflow={workflowBody}/>
@@ -126,8 +121,7 @@ function WorkflowList(props) {
                 </Skeleton>
             </Box>
         </NavBar>
-        
-    )
+  )
 }
 
-export default WorkflowList
+export default UserActivities

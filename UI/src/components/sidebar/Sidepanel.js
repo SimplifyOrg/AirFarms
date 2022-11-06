@@ -7,7 +7,7 @@ import {
     Text,
     Avatar,
     VStack,
-    useColorModeValue
+    useColorModeValue,
 } from '@chakra-ui/react'
 import { Link } from 'react-router-dom'
 import UserContext from '../../utils/UserContext'
@@ -46,8 +46,8 @@ function Sidepanel() {
                         </Link>
                     </Flex>
                     <Flex className='sidebar-items'>
-                        <Link _hover={{textDecor:'none'}}>
-                            <Text>Workflows</Text>
+                        <Link _hover={{textDecor:'none'}} to='/user-workflow-list'>
+                            <Text>Activities</Text>
                         </Link>
                     </Flex>
                     {/* <Flex className='sidebar-items'>
@@ -57,11 +57,13 @@ function Sidepanel() {
                     </Flex> */}
                 </Flex>
             </Flex>
-            <Flex flexDir="column" alignItems="center" mb={10} mt={5}>
-                <Avatar my={2} name={user.data.first_name +' '+ user.data.last_name}  src={user.picture.image}/>
-                <Text>{user.data.first_name}</Text>
-                <Text>{user.data.last_name}</Text>
-            </Flex>
+            <Link to='/profile'>
+                <Flex flexDir="column" alignItems="center" mb={10} mt={5}>
+                    <Avatar my={2} name={user.data.first_name +' '+ user.data.last_name}  src={user.picture.image}/>
+                    <Text>{user.data.first_name}</Text>
+                    <Text>{user.data.last_name}</Text>
+                </Flex>
+            </Link>
         </Flex>
 
     </Flex>

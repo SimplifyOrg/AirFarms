@@ -20,18 +20,25 @@ import Dashboard from '../pages/Dashboard';
 import WorkflowList from '../components/workflow/WorkflowList';
 import { ProtectedRoute } from './ProtectedRoute';
 import UserContext from "../utils/UserContext";
+import UserProfile from '../pages/UserProfile';
+import UserActivities from '../pages/UserActivities';
+import Home from '../pages/Home';
+import Registration from '../pages/Registration';
 
 function Navigation() {
     const { user } = useContext(UserContext);
     return (
         <Routes>
-            <Route path="/" exact element={ user?.data?.id === undefined? <Signin/> : <Dashboard/>} />
+            <Route path="/" exact element={ user?.data?.id === undefined? <Home/> : <Dashboard/>} />
             {/* <RouteWrapper path="/profile" exact isPrivate component={UserProfilePage} />
             <RouteWrapper path="/signup" exact component={Registration} /> */}
             <Route path="login" exact element={<Signin/>} />
+            <Route path="signup" exact element={<Registration/>} />
             <Route path="logout" exact isPrivate element={<ProtectedRoute><Logout/></ProtectedRoute>} />
             <Route path="farms" exact isPrivate element={<ProtectedRoute><FarmList/></ProtectedRoute>} />
             <Route path="dashboard" exact isPrivate element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
+            <Route path="profile" exact isPrivate element={<ProtectedRoute><UserProfile/></ProtectedRoute>} />
+
             {/* <RouteWrapper path="/resetpassword" exact component={ResetPassword} />
             <RouteWrapper path="/user-dashboard" exact isPrivate component={UserDashboard} />
             <RouteWrapper path="/create-farm" exact isPrivate component={CreateFarm} />
@@ -42,6 +49,7 @@ function Navigation() {
             <RouteWrapper path="/todo" exact isPrivate component={TodoPage} /> */}
             <Route path="workflow" exact isPrivate element={<ProtectedRoute><Workflow/></ProtectedRoute>} />
             <Route path="workflow-list" exact isPrivate element={<ProtectedRoute><WorkflowList/></ProtectedRoute>} />
+            <Route path="user-workflow-list" exact isPrivate element={<ProtectedRoute><UserActivities/></ProtectedRoute>} />
             <Route element={<Signin/>}/>
         </Routes>
         

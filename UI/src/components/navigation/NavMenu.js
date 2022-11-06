@@ -17,18 +17,19 @@ function NavMenu(props) {
     if(signedIn)
     {
         return (
-            <Menu>
-                <MenuButton
-                    as={IconButton}
-                    aria-label="Options"
-                    icon={<HamburgerIcon colorScheme={'transparent'}/>}
-                    variant="outline"
-                />
-                <MenuList>
-                    <MenuItem matchWidth={true} color="orange.400"><Link to="/profile">Profile</Link></MenuItem>
-                    <MenuItem matchWidth={true} color="orange.400"><Link to="/logout">Logout</Link></MenuItem>
-                </MenuList>
-            </Menu>           
+            // <Menu>
+            //     <MenuButton
+            //         as={IconButton}
+            //         aria-label="Options"
+            //         icon={<HamburgerIcon colorScheme={'transparent'}/>}
+            //         variant="outline"
+            //     />
+            //     <MenuList>
+            //         <MenuItem matchWidth={true} color="orange.400"><Link to="/profile">Profile</Link></MenuItem>
+            //         <MenuItem matchWidth={true} color="orange.400"><Link to="/logout">Logout</Link></MenuItem>
+            //     </MenuList>
+            // </Menu>
+            <MenuItems ml={2} color="orange.400" to="/logout">Logout</MenuItems>         
         )
     }
     else

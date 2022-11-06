@@ -5,7 +5,8 @@ import { Button } from "@chakra-ui/button";
 import FormikControl from '../FormikControl';
 import {Link, useNavigate} from 'react-router-dom'
 import {
-    VStack
+    VStack,
+    useToast
 } from '@chakra-ui/react'
 import {AuthProvider} from '../../utils/AuthProvider'
 import UserContext from '../../utils/UserContext'
@@ -17,6 +18,7 @@ function NewWorkflow() {
     const { user } = useContext(UserContext);
     const { farm } = useContext(FarmContext);
     const { workflow, setWorkflow } = useContext(WorkflowContext);
+    const toast = useToast()
     const navigate = useNavigate()
 
     // const date = new Date()
@@ -68,6 +70,15 @@ function NewWorkflow() {
             }
 
         }
+
+        toast({
+            position: 'top',
+            title: `Activity creation`,
+            description: `Edit activity ${values.name} `,
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+          })
 
         // setWorkflow(JSON.stringify(workflowInit))
         setWorkflow('generate_new_hash_here')

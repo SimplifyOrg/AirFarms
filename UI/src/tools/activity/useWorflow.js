@@ -3,12 +3,14 @@ import { AuthProvider } from '../../utils/AuthProvider'
 import {useNavigate} from 'react-router-dom'
 import JsonFlowContext from '../../utils/JsonFlowContext'
 import WorkflowContext from '../../utils/WorkflowContext'
+import {useToast} from '@chakra-ui/react'
 
 function useWorflow(farm, user, setNodes, setEdges) {
 
     const {jsonFlow, setJsonFlow} = useContext(JsonFlowContext)
     const {workflow} = useContext(WorkflowContext)
     const navigate = useNavigate()
+    const toast = useToast()
 
     const onRestore = useCallback(() => {
         const restoreFlow = async () => {
@@ -52,6 +54,7 @@ function useWorflow(farm, user, setNodes, setEdges) {
                     setJsonFlow(resJSON.data)
                     localStorage.setItem(workflow, resJSON.data.jsonFlow);
                     onRestore()
+
                     navigate('/workflow', {
                         state: {
                           workflow: JSON.parse(resJSON.data.jsonFlow),
@@ -96,6 +99,14 @@ function useWorflow(farm, user, setNodes, setEdges) {
                     localStorage.setItem(workflow, res.data.jsonFlow);
                     onRestore()
                     setJsonFlow(res.data)
+                    toast({
+                        position: 'top',
+                        title: `Activity saved`,
+                        description: ``,
+                        status: 'success',
+                        duration: 9000,
+                        isClosable: true,
+                      })
                     navigate('/workflow', {
                         state: {
                           workflow: JSON.parse(res.data.jsonFlow),
