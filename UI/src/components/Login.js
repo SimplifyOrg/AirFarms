@@ -1,4 +1,4 @@
-import React, {useContext} from 'react'
+import React, {useContext, useCallback} from 'react'
 import {Form, Formik} from 'formik'
 import * as Yup from 'yup'
 import { Button } from "@chakra-ui/button";
@@ -6,7 +6,8 @@ import FormikControl from './FormikControl';
 import { useNavigate } from 'react-router-dom';
 import {
     HStack,
-    VStack
+    VStack,
+    useToast
 } from '@chakra-ui/react'
 import {AuthProvider} from '../utils/AuthProvider'
 import UserContext from '../utils/UserContext'
@@ -18,7 +19,7 @@ export default function Login(props) {
 
     const history = useNavigate()
     const { user, setUser } = useContext(UserContext);
-    // const [cookies, setCookie] = useCookies(['airfarms']);
+    const toast = useToast()
     
     const initialValues = {
         username:'',
@@ -66,6 +67,17 @@ export default function Login(props) {
         .catch(error => {
             console.log(error);
             console.log(error.data);
+            // onSubmitProps.setFieldError("password", "Login failed! Please reload the page and try again.")
+            toast({
+                position: 'top',
+                title: 'Login failed!',
+                description: "Please reload the page and try again.",
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+              })
+            onSubmitProps.setSubmitting(false)
+            // setSubmitting(false)
             // dispatch(userAction('{}'));
             // setErrorFlag(true)
             // setError(error)
@@ -76,6 +88,11 @@ export default function Login(props) {
 
     const [show, setShow] = React.useState(false)
     const handleClick = () => setShow(!show)
+
+    const handleShow = useCallback(
+        (toggle) => {
+            setShow(toggle)
+        }, [])
 
     const [error, setError] = React.useState('')
     const [errorFlag, setErrorFlag] = React.useState(false)
@@ -113,6 +130,8 @@ export default function Login(props) {
                             name='password'
                             required
                             color="orange.400"
+                            showPasswordButton
+                            handleShow={handleShow}
                         />
                     </VStack>
                     
