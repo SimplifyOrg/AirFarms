@@ -28,6 +28,28 @@
   color: #61dafb;
 }
 
+.welcome-body {
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+      url(https://cdn.britannica.com/97/141297-050-5A5B37D7/fishing-nets-fishery-Kochi-India-Kerala.jpg);
+    background-position: center;
+    background-size: cover;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    min-height: 94vh;
+  }
+  
+.welcome-title {
+    color: white;
+    font-size: 100px;
+    font-family: "Berkshire Swash";
+    font-weight: 100;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
