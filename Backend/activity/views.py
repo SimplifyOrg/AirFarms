@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import permissions, viewsets, generics
-from .serializers import JSONWorkflowSerializer, WorkflowSerializer, WorkSerializer, StateSerializer, TransitionSerializer, TransitionApprovalSerializer
-from .models import JSONWorkflow, Workflow, Work, State, Transition, TransitionApproval
+from .serializers import JSONWorkflowSerializer, WorkDocumentsSerializer, WorkflowSerializer, WorkSerializer, StateSerializer, TransitionSerializer, TransitionApprovalSerializer
+from .models import JSONWorkflow, WorkDocuments, Workflow, Work, State, Transition, TransitionApproval
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 
@@ -24,6 +24,15 @@ class WorkViewSet(viewsets.ModelViewSet):
     serializer_class = WorkSerializer
     filter_backends = [DjangoFilterBackend,]
     filterset_fields = ['id', 'assignee', 'completion_date', 'has_finished', 'is_halted']
+
+class WorkDocumentsViewSet(viewsets.ModelViewSet):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    queryset = WorkDocuments.objects.all()
+    serializer_class = WorkDocumentsSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = ['id', 'file', 'associatedWork']
 
 class StateViewSet(viewsets.ModelViewSet):
     permission_classes = [

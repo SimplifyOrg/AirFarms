@@ -58,6 +58,11 @@ class Work(DiscussionBoard):
         #completion_date = self.associatedState.transition_date
         super(Work, self).save()
 
+class WorkDocuments(models.Model):
+    title = models.CharField(max_length=256, default='New file')
+    file = models.FileField(upload_to = 'files')
+    associatedWork = ForeignKey(Work, on_delete=models.CASCADE)
+
 class JSONWorkflow(models.Model):
     jsonFlow = models.JSONField()
     workflow = ForeignKey(Workflow, on_delete=models.CASCADE)

@@ -5,6 +5,7 @@ from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register(r'work/handle', views.WorkViewSet)
+router.register(r'work-documents/handle', views.WorkDocumentsViewSet)
 router.register(r'workflow/handle', views.WorkflowViewSet)
 router.register(r'state/handle', views.StateViewSet)
 router.register(r'transition/handle', views.TransitionViewSet)
