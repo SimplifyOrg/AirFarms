@@ -10,6 +10,7 @@ import {BrowserRouter} from 'react-router-dom'
 import Navigation from './routes/index'
 import NodeContext from './utils/NodeContext';
 import JsonFlowContext from './utils/JsonFlowContext';
+import ExecutionProvider from './utils/ExecutionProvider';
 
 function App() {
 
@@ -26,13 +27,15 @@ function App() {
         <UserProvider>
             <FarmProvider>
                 <WorkflowProvider>
-                    <JsonFlowContext.Provider value={valueJson}>
-                        <NodeContext.Provider value={valueNode}>
-                            <BrowserRouter>
-                                <Navigation/>
-                            </BrowserRouter>
-                        </NodeContext.Provider>
-                    </JsonFlowContext.Provider>
+                    <ExecutionProvider>
+                        <JsonFlowContext.Provider value={valueJson}>
+                            <NodeContext.Provider value={valueNode}>
+                                <BrowserRouter>
+                                    <Navigation/>
+                                </BrowserRouter>
+                            </NodeContext.Provider>
+                        </JsonFlowContext.Provider>
+                    </ExecutionProvider>
                 </WorkflowProvider>
             </FarmProvider>
         </UserProvider>      
