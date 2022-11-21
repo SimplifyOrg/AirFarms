@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import JSONWorkflow, WorkDocuments, Workflow, Work, State, Transition, TransitionApproval
+from .models import Execution, JSONWorkflow, WorkDocuments, WorkGroups, Workflow, Work, State, Transition, TransitionApproval
 
 class WorkflowSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,4 +34,14 @@ class JSONWorkflowSerializer(serializers.ModelSerializer):
 class WorkDocumentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = WorkDocuments
+        fields = ('__all__')
+
+class WorkGroupsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkGroups
+        fields = ('__all__')
+
+class ExecutionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Execution
         fields = ('__all__')

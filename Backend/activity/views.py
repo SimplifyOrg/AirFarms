@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import permissions, viewsets, generics
-from .serializers import JSONWorkflowSerializer, WorkDocumentsSerializer, WorkflowSerializer, WorkSerializer, StateSerializer, TransitionSerializer, TransitionApprovalSerializer
-from .models import JSONWorkflow, WorkDocuments, Workflow, Work, State, Transition, TransitionApproval
+from .serializers import ExecutionSerializer, JSONWorkflowSerializer, WorkDocumentsSerializer, WorkGroupsSerializer, WorkflowSerializer, WorkSerializer, StateSerializer, TransitionSerializer, TransitionApprovalSerializer
+from .models import Execution, JSONWorkflow, WorkDocuments, WorkGroups, Workflow, Work, State, Transition, TransitionApproval
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 
@@ -13,7 +13,7 @@ class WorkflowViewSet(viewsets.ModelViewSet):
     queryset = Workflow.objects.all()
     serializer_class = WorkflowSerializer
     filter_backends = [DjangoFilterBackend,OrderingFilter,]
-    filterset_fields = ['id', 'owner', 'farm', 'is_production', 'has_finished', 'archived']
+    filterset_fields = ['id', 'owner', 'farm', 'is_production', 'archived']
     ordering_fields = ['title']
 
 class WorkViewSet(viewsets.ModelViewSet):
@@ -70,3 +70,23 @@ class JSONWorkflowViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend,OrderingFilter]
     filterset_fields = ['id', 'workflow', 'farm', 'archived']
     ordering_fields = ['id','workflow']
+
+class WorkGroupsViewSet(viewsets.ModelViewSet):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    queryset = WorkGroups.objects.all()
+    serializer_class = WorkGroupsSerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_fields = ['id', 'associatedFlow', 'name']
+    ordering_fields = ['id','associatedFlow', 'name']
+
+class ExecutionViewSet(viewsets.ModelViewSet):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    queryset = Execution.objects.all()
+    serializer_class = ExecutionSerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_fields = ['id', 'associatedFlow', 'startTime', 'endTime', 'has_finished']
+    ordering_fields = ['id','associatedFlow', 'startTime', 'endTime']

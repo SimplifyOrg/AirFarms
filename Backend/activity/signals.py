@@ -144,11 +144,16 @@ def UpdateWork(work):
 def UpdateOrCreateWork(node):
     state = State.objects.get(id=node['id'])
     for work in node['data']['works']:
-        existingWork = Work.objects.get(id=work['id'])
-        if existingWork is None:
-            CreateWork(work, work['notifiers'], state)
+        if str(work['id']).__contains__('temp'):
+            newWork = CreateWork(work, work['notifiers'], state)
+            work['id'] = int(newWork.id)
         else:
-            UpdateWork(work)
+            existingWork = Work.objects.get(id=work['id'])
+            if existingWork is None:
+                newWork = CreateWork(work, work['notifiers'], state)
+                work['id'] = int(newWork.id)
+            else:
+                UpdateWork(work)
 
 def UpdateTransition(transition, flowId):
     #Update associated flow id
@@ -206,9 +211,11 @@ def JSONWorkflowHandler(sender, instance, created, **kwargs):
             for node in flow['nodes']:
                 CreateState(node=node)
 
+            # Update ids for start state
+            flow['workflow']['startState'] = int(nodeDict['n1'])
             # Update ids for current state
-            for i in range(len(flow['workflow']['currentStates'])):
-                flow['workflow']['currentStates'][i] = int(nodeDict[flow['workflow']['currentStates'][i]])
+            # for i in range(len(flow['workflow']['currentStates'])):
+            #     flow['workflow']['currentStates'][i] = int(nodeDict[flow['workflow']['currentStates'][i]])
             
             #Create transition for each edge
             for edge in flow['edges']:

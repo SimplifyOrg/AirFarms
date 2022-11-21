@@ -2,7 +2,7 @@ from .models import User, ProfilePicture
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.hashers import make_password
-# from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

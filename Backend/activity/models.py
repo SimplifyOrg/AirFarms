@@ -3,11 +3,9 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.db.models.fields import DateTimeField, TextField
 from account.models import User
 from discussion.models import DiscussionBoard
-from farm.models import Farm
+from farm.models import Farm, FarmGroups
 from django.utils import timezone
 from datetime import timedelta
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 def return_date_time():
     now = timezone.now()
@@ -22,10 +20,9 @@ class State(models.Model):
 
 class Workflow(models.Model):
     title = models.CharField(max_length=256, default='New workflow')
-    currentStates = ManyToManyField(State, blank=True, related_name='current_state')
-    has_finished = models.BooleanField(default=False)
     farm = ForeignKey(Farm, on_delete=models.CASCADE)
     owner = ForeignKey(User, on_delete=models.CASCADE)
+    startState = ForeignKey(State, blank=True, null=True, related_name='start_state', on_delete=models.CASCADE)
     is_production = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
 
@@ -44,8 +41,11 @@ class TransitionApproval(models.Model):
     approval = models.BooleanField(default=False)
     reject = models.BooleanField(default=False)
 
+class WorkGroups(FarmGroups):
+    associatedFlow = ForeignKey(Workflow, on_delete=models.CASCADE)
+
 class Work(DiscussionBoard):
-    assignee = ManyToManyField(User, blank=True)
+    assignee = ManyToManyField(WorkGroups, blank=True)
     notifiers = ManyToManyField(User, blank=True, related_name='work_notifiers')
     notes = TextField(blank=True)
     associatedState = ForeignKey(State, on_delete=models.CASCADE)
@@ -69,4 +69,10 @@ class JSONWorkflow(models.Model):
     farm = ForeignKey(Farm, on_delete=models.CASCADE)
     archived = models.BooleanField(default=False)
 
-
+class Execution(DiscussionBoard):
+    associatedFlow = ForeignKey(Workflow, on_delete=models.CASCADE)
+    startTime = DateTimeField(default=timezone.now)
+    endTime = DateTimeField(null=True, blank=True)
+    has_finished = models.BooleanField(default=False)
+    currentStates = ManyToManyField(State, blank=True)
+    initiater = ForeignKey(User, on_delete=models.CASCADE)
