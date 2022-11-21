@@ -4,20 +4,21 @@ import UserContext from '../utils/UserContext';
 import {Link, useNavigate} from 'react-router-dom'
 import {
     Box,
-    Badge,
-    Flex,
     Stat,
     StatLabel,
     StatNumber,
-    StatHelpText,
     SimpleGrid,
     useColorModeValue,
     Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbLink
+    BreadcrumbLink,
+    useToast,
+    HStack,
 } from '@chakra-ui/react'
 import { ChevronRightIcon } from '@chakra-ui/icons';
 import NavBar from '../components/navigation/NavBar';
+import ExecutionComp from '../tools/activity/ExecutionComp';
+
 
 function Dashboard() {
 
@@ -47,7 +48,7 @@ function Dashboard() {
             .then(res => {
                 console.log(res);
                 console.log(res.data);
-                SetNumberFarms(res.data.length)                      
+                SetNumberFarms(res.data.length)
             })
             .catch(error => {
                 console.log(error);
@@ -190,44 +191,49 @@ function Dashboard() {
                 </BreadcrumbItem>
             </Breadcrumb>
             <Box maxW='4xl'>
-            <SimpleGrid columns={2} spacingX={1} >
-            <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
-                <Stat onClick={handleClickFarms}>
-                    <StatLabel>Farms</StatLabel>
-                    <StatNumber>{numberFarms}</StatNumber>
-                </Stat>
-                <Stat>
-                    <StatLabel>Active Workflows</StatLabel>
-                    <StatNumber>{numberWorkflows}</StatNumber>
-                </Stat>
-            </Box>
-            <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
-                <Stat>
-                    <StatLabel>Pending Reviews</StatLabel>
-                    <StatNumber>{reviews.length}</StatNumber>
-                </Stat>
-            </Box>
-            <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
-                <Stat>
-                    <StatLabel>Assigned Works</StatLabel>
-                    <StatNumber>{works.length}</StatNumber>
-                </Stat>
-                <Stat>
-                    <StatLabel>Overdue Works</StatLabel>
-                    <StatNumber>{overdueWorks.length}</StatNumber>
-                </Stat>
-                <Stat>
-                    <StatLabel>Halted Works</StatLabel>
-                    <StatNumber>{haltedWorks.length}</StatNumber>
-                </Stat>
-            </Box>
-            <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
-                <Stat>
-                    <StatLabel>Upcoming Works</StatLabel>
-                    <StatNumber>{upcomingWorks.length}</StatNumber>
-                </Stat>
-            </Box>
-            </SimpleGrid>
+
+                <SimpleGrid columns={2} spacingX={1} >
+                <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
+                    <Stat onClick={handleClickFarms}>
+                        <StatLabel>Farms</StatLabel>
+                        <StatNumber>{numberFarms}</StatNumber>
+                    </Stat>
+                    <Stat>
+                        <StatLabel>Active Workflows</StatLabel>
+                        <StatNumber>{numberWorkflows}</StatNumber>
+                    </Stat>
+                </Box>
+                <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
+                    <Stat>
+                        <StatLabel>Pending Reviews</StatLabel>
+                        <StatNumber>{reviews.length}</StatNumber>
+                    </Stat>
+                </Box>
+                <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
+                    <Stat>
+                        <StatLabel>Assigned Works</StatLabel>
+                        <StatNumber>{works.length}</StatNumber>
+                    </Stat>
+                    <Stat>
+                        <StatLabel>Overdue Works</StatLabel>
+                        <StatNumber>{overdueWorks.length}</StatNumber>
+                    </Stat>
+                    <Stat>
+                        <StatLabel>Halted Works</StatLabel>
+                        <StatNumber>{haltedWorks.length}</StatNumber>
+                    </Stat>
+                </Box>
+                <Box marginBlock={1} display='flex' bg={useColorModeValue("orange.100", 'gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden' >
+                    <Stat>
+                        <StatLabel>Upcoming Works</StatLabel>
+                        <StatNumber>{upcomingWorks.length}</StatNumber>
+                    </Stat>
+                </Box>
+                
+                
+                
+                </SimpleGrid>
+                <ExecutionComp maxWidth="90%"/>
             </Box>
      
         </NavBar>

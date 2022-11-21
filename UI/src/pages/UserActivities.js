@@ -63,7 +63,7 @@ function UserActivities() {
                     title: `Sorry couldn't get your activities!`,
                     description: `Please try again in sometime.`,
                     status: 'error',
-                    duration: 9000,
+                    duration: 3000,
                     isClosable: true,
                   })
             })
