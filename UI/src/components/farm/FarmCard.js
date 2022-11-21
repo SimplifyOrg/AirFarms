@@ -27,7 +27,7 @@ function FarmCard(props) {
 
     const archiveFarm = () => {
 
-        let data = farm;
+        let data = props.farmBody.farm;
 
         data.archived = true;        
 
@@ -37,7 +37,7 @@ function FarmCard(props) {
             }
           }
         const authProvider = AuthProvider()
-        authProvider.authPut(`/farm/perform/manage/${farm.id}/`, data, config)
+        authProvider.authPut(`/farm/perform/manage/${data.id}/`, data, config)
         .then(res =>{
             console.log(res);
             console.log(res.data);

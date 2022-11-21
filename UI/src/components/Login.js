@@ -73,7 +73,7 @@ export default function Login(props) {
                 title: 'Login failed!',
                 description: "Please reload the page and try again.",
                 status: 'error',
-                duration: 9000,
+                duration: 3000,
                 isClosable: true,
               })
             onSubmitProps.setSubmitting(false)
@@ -132,6 +132,8 @@ export default function Login(props) {
                             color="orange.400"
                             showPasswordButton
                             handleShow={handleShow}
+                            showColor="gray.500"
+                            showIconColor="gray.500"
                         />
                     </VStack>
                     
@@ -149,6 +151,7 @@ export default function Login(props) {
                         type='reset'
                         width="full"
                         color="orange.400"
+                        onClick={() => {formik.setFieldValue('phone', '');formik.setFieldValue('password', '')}}
                     >
                         Reset
                     </Button>

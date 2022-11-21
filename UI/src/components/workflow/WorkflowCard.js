@@ -9,17 +9,15 @@ import {
     CloseButton,
 } from '@chakra-ui/react'
 import {useNavigate} from 'react-router-dom'
-import UserContext from '../../utils/UserContext'
 import WorkflowContext from '../../utils/WorkflowContext'
+import ExecutionContext from '../../utils/ExecutionContext'
 import {AuthProvider} from '../../utils/AuthProvider'
-import JsonFlowContext from '../../utils/JsonFlowContext'
 
 function WorkflowCard(props) {
-    const locale = 'en';
-    const { user } = useContext(UserContext);
     const [flowid, setFlowid] = useState(-1)
     const navigate = useNavigate()
     const { workflow, setWorkflow } = useContext(WorkflowContext);
+    const { execution, setExecution } = useContext(ExecutionContext)
     
     useEffect(() => {   
         let config = {
@@ -39,16 +37,16 @@ function WorkflowCard(props) {
         })
         .catch(error => {
             console.log(error);
-            console.log(error.data);
         })
 
     }, []);    
 
     const handleClick = () => {
+        setExecution(null)
         setWorkflow('generate_new_hash_here')
         navigate('/workflow', {
             state: {
-              workflow: props.workflow,
+              workflow: props.workflow
             }
           })
     }

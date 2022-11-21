@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useCallback} from 'react'
 import {Form, Formik} from 'formik'
 import * as Yup from 'yup'
 import { Button } from "@chakra-ui/button";
@@ -81,7 +81,7 @@ function Signup() {
                 title: 'Signup failed!',
                 description: "Please reload the page and try again.",
                 status: 'error',
-                duration: 9000,
+                duration: 3000,
                 isClosable: true,
               })
             onSubmitProps.setSubmitting(false)
@@ -95,7 +95,10 @@ function Signup() {
     }
 
     const [show, setShow] = React.useState(false)
-    const handleClick = () => setShow(!show)
+    const handleShow = useCallback(
+        (toggle) => {
+            setShow(toggle)
+        }, [])
 
     const [error, setError] = React.useState('')
     const [errorFlag, setErrorFlag] = React.useState(false)
@@ -192,6 +195,10 @@ function Signup() {
                     name='password'
                     required
                     color="orange.400"
+                    showPasswordButton
+                    handleShow={handleShow}
+                    showColor="gray.500"
+                    showIconColor="gray.500"
                 />
                 <FormikControl
                     control='chakraInput'

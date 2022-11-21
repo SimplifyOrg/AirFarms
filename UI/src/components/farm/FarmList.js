@@ -55,12 +55,12 @@ function FarmList(props) {
                         SetFarmList(initialFarms.slice())
                     }
                     
-                    authProvider.authGet(`/farm/perform/manage/farmpicture/?farm=${res.data[i].id}`, config)
+                    authProvider.authGet(`/farm/perform/manage/farmpicture/?farm=${res.data[i].id}&&profilePicture=${true}`, config)
                     .then(resPic => {
                         console.log(resPic);
                         console.log(resPic.data);
-                        initialFarms[i].farmpicture = resPic.data
-                        SetFarmList(initialFarms.slice())                        
+                        initialFarms[i].farmpicture = resPic.data[0]
+                        SetFarmList(initialFarms.slice())
                     })
                     .catch(error => {
                         console.log(error);
@@ -78,7 +78,7 @@ function FarmList(props) {
                     title: `Unable to load all farms`,
                     description: `Please reaload the page to try again`,
                     status: 'error',
-                    duration: 9000,
+                    duration: 3000,
                     isClosable: true,
                   })
             })
@@ -116,11 +116,11 @@ function FarmList(props) {
                         SetFarmList(initialFarms.slice())
                     }
                     
-                    authProvider.authGet(`/farm/perform/manage/farmpicture/?farm=${res.data[i].id}`, config)
+                    authProvider.authGet(`/farm/perform/manage/farmpicture/?farm=${res.data[i].id}&&profilePicture=${true}`, config)
                     .then(resPic => {
                         console.log(resPic);
                         console.log(resPic.data);
-                        initialFarms[i].farmpicture = resPic.data
+                        initialFarms[i].farmpicture = resPic.data[0]
                         SetFarmList(initialFarms.slice())                        
                     })
                     .catch(error => {
@@ -139,7 +139,7 @@ function FarmList(props) {
                     title: `Sorry couldn't get your farms!`,
                     description: `Please try again in sometime.`,
                     status: 'error',
-                    duration: 9000,
+                    duration: 3000,
                     isClosable: true,
                   })
             })

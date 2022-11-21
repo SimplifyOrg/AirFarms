@@ -62,10 +62,9 @@ function NewWorkflow() {
             workflow: {
                 id: "-1",
                 title: values.name,
-                currentStates: [],
-                has_finished: "false",
                 farm: farm.id,
                 owner: user.data.id,
+                startState: -1,
                 is_production: "false"
             }
 
@@ -76,7 +75,7 @@ function NewWorkflow() {
             title: `Activity creation`,
             description: `Edit activity ${values.name} `,
             status: 'success',
-            duration: 9000,
+            duration: 3000,
             isClosable: true,
           })
 

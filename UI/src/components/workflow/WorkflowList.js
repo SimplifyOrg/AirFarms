@@ -8,7 +8,15 @@ import {
     BreadcrumbItem,
     BreadcrumbLink,
     Skeleton,
-    useToast
+    useToast,
+    Table,
+    Thead,
+    Tbody,
+    Tfoot,
+    Tr,
+    Th,
+    TableCaption,
+    TableContainer,
 } from '@chakra-ui/react'
 import {Link} from 'react-router-dom'
 import { ChevronRightIcon } from '@chakra-ui/icons';
@@ -17,6 +25,9 @@ import CreateWorkflowCard from './CreateWorkflowCard'
 import {AuthProvider} from '../../utils/AuthProvider'
 import FarmContext from '../../utils/FarmContext'
 import NavBar from '../navigation/NavBar'
+import ExecutionList from '../../tools/activity/ExecutionList';
+import Execution from '../../tools/activity/Execution';
+import ExecutionComp from '../../tools/activity/ExecutionComp';
 
 function WorkflowList(props) {
 
@@ -63,7 +74,7 @@ function WorkflowList(props) {
                     title: `Sorry couldn't get your activities!`,
                     description: `Please try again in sometime.`,
                     status: 'error',
-                    duration: 9000,
+                    duration: 3000,
                     isClosable: true,
                   })
             })
@@ -85,6 +96,10 @@ function WorkflowList(props) {
                     <BreadcrumbLink as={Link} to='/workflow-list'>Workflows</BreadcrumbLink>
                 </BreadcrumbItem>
             </Breadcrumb>
+
+            <Text>{farm.name}</Text>
+            
+            <ExecutionComp maxWidth="20%"/>
             
             <Box 
                 id="workflowList"

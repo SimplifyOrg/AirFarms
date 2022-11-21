@@ -8,6 +8,8 @@ import ChakraDatePicker from './ChakraDatePicker'
 import ChakraInput from './ChakraInput'
 import ChakraTextArea from './ChakraTextArea'
 import ComboBox from './ComboBox'
+import ComboBoxGroups from './ComboBoxGroups'
+import ComboBoxWorkflows from './ComboBoxWorkflows'
 import ChakraCheckbox from './ChakraCheckbox'
 // import WysiwygEditor from './WysiwygEditor'
 
@@ -24,6 +26,10 @@ function FormikControl (props) {
         return <ChakraDatePicker {...rest} />
     case 'comboBox':
         return <ComboBox {...rest} />
+    case 'comboBoxGroups':
+        return <ComboBoxGroups {...rest} />
+    case 'comboBoxWorkflows':
+        return <ComboBoxWorkflows {...rest} />
     case 'chakraCheckbox':
         return <ChakraCheckbox {...rest} />
     default:

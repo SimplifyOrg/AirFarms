@@ -18,24 +18,24 @@ import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 
 function EditableComponent(props) {
     /* Here's a custom control */
-    function EditableControls() {
-      const {
-        isEditing,
-        getSubmitButtonProps,
-        getCancelButtonProps,
-        getEditButtonProps
-      } = useEditableControls();
+    // function EditableControls() {
+    //   const {
+    //     isEditing,
+    //     getSubmitButtonProps,
+    //     getCancelButtonProps,
+    //     getEditButtonProps
+    //   } = useEditableControls();
   
-      return isEditing ? (
-        <ButtonGroup justifyContent="end" size="sm" w="full" spacing={2} mt={2}>
-          <IconButton icon={<CheckIcon />} {...getSubmitButtonProps()}/>
-          <IconButton
-            icon={<CloseIcon boxSize={3} />}
-            {...getCancelButtonProps()}
-          />
-        </ButtonGroup>
-      ) : null;
-    }
+    //   return isEditing ? (
+    //     <ButtonGroup justifyContent="end" size="sm" w="full" spacing={2} mt={2}>
+    //       <IconButton icon={<CheckIcon />} {...getSubmitButtonProps()}/>
+    //       <IconButton
+    //         icon={<CloseIcon boxSize={3} />}
+    //         {...getCancelButtonProps()}
+    //       />
+    //     </ButtonGroup>
+    //   ) : null;
+    // }
   
     return (
         <Editable
@@ -46,8 +46,8 @@ function EditableComponent(props) {
         >
           <Tooltip label="Click to edit">
             <EditablePreview
-              py={2}
-              px={4}
+              py={1}
+              px={2}
               _hover={{
                 background: useColorModeValue("gray.100", "gray.700")
               }}

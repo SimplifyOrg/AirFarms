@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import { useCallback,
+    useContext } from 'react';
 import {
     Heading,
     Avatar,
@@ -13,11 +14,14 @@ import {
   } from '@chakra-ui/react';
   import EditableComponent from '../EditableComponent'
   import { AuthProvider } from '../../utils/AuthProvider';
+  import UserContext from '../../utils/UserContext';
   
   export default function ProfilePicture(props) {
 
+    const {user, setUser} = useContext(UserContext)
+    
     const updateUser = (data) => {
-        if(props.user)
+        if(user)
         {
             //Runs only on the first render
             // Get pending approvals
@@ -28,7 +32,7 @@ import {
             }
             const authProvider = AuthProvider()
 
-            authProvider.authPatch(`/account/user/${props.user.data.id}/`, data, config)
+            authProvider.authPatch(`/account/user/${user.data.id}/`, data, config)
             .then(res => {
                 console.log(res);
                 console.log(res.data);
@@ -47,6 +51,9 @@ import {
         }
         
         updateUser(data)
+        let updatedUser = user;
+        updatedUser.data.about = data.about;
+        setUser(updatedUser)
         
     }, []);
 
@@ -57,6 +64,9 @@ import {
         }
         
         updateUser(data)
+        let updatedUser = user;
+        updatedUser.data.first_name = data.first_name;
+        setUser(updatedUser)
         
     }, []);
 
@@ -67,6 +77,9 @@ import {
         }
         
         updateUser(data)
+        let updatedUser = user;
+        updatedUser.data.last_name = data.last_name;
+        setUser(updatedUser)
         
     }, []);
 

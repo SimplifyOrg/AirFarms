@@ -12,7 +12,7 @@ import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { Field } from 'formik'
 
 function ChakraInput(props) {
-    const {label, name, required, color, setRef, type, handleShow, showPasswordButton, ...rest} = props
+    const {label, name, required, color, setRef, type, handleShow, showPasswordButton, showColor, showIconColor, handleFileUpload, ...rest} = props
     return (
         <Field name={name}>
             {({field, form}) => {
@@ -20,14 +20,31 @@ function ChakraInput(props) {
                     <FormControl isRequired={required} isInvalid={form.errors[name] && form.touched[name]}>
                         {label ? <FormLabel htmlFor={name} color={color}>{label}</FormLabel> : <div/>}
                         <InputGroup>
+                        {type === 'file'?
                             <Input id={name}{...rest}{...field} type={type}
                             ref={(ref) => {
                                 if(setRef !== undefined && ref !== null){
                                     setRef(ref)
                                     }
                                 }
-                            }/>
-                            {showPasswordButton? <InputRightElement children={type === 'password' ? <IconButton variant='ghost' onClick={()=>handleShow(true)} colorScheme='blue' aria-label='Search database'  icon={<ViewIcon />}/> : <IconButton variant='ghost' onClick={()=>handleShow(false)} colorScheme='blue' aria-label='Search database'  icon={<ViewOffIcon />}/>} /> : <></>}
+                            }
+                            onChange={(event) => {
+                                if(handleFileUpload !== null && handleFileUpload !== undefined)
+                                {
+                                    handleFileUpload(event)
+                                }                            
+                            }}
+                            />:
+                            <Input id={name}{...rest}{...field} type={type}
+                            ref={(ref) => {
+                                if(setRef !== undefined && ref !== null){
+                                    setRef(ref)
+                                    }
+                                }
+                            }
+                            />
+                        }
+                            {showPasswordButton? <InputRightElement children={type === 'password' ? <IconButton colorScheme={showColor} variant='ghost' onClick={()=>handleShow(true)} icon={<ViewIcon color={showIconColor}/>}/> : <IconButton colorScheme={showColor} variant='ghost' onClick={()=>handleShow(false)} icon={<ViewOffIcon color={showIconColor}/>}/>} /> : <></>}
                         </InputGroup>
                         <FormErrorMessage>{form.errors[name]}</FormErrorMessage>
                     </FormControl>
