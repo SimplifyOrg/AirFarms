@@ -125,9 +125,8 @@ ASGI_APPLICATION = 'machhli.asgi.application'
 
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'workflowdb',
+        'NAME': 'workflowdb1',
         'USER': 'postgres',
         'PASSWORD': 'kislay12',
         'HOST': 'workflowdb.cf2quzofcfqu.ap-south-1.rds.amazonaws.com',

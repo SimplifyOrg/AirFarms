@@ -13,7 +13,7 @@ class Farm(models.Model):
     archived = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('user', 'name', 'archived')
+        unique_together = ('id', 'user', 'name', 'archived')
 
     def __unicode__(self):
         return self.name
@@ -38,3 +38,4 @@ class FarmGroups(Group):
                             Farm,
                             on_delete=models.CASCADE
                             )
+    image = models.ImageField(default='default.jpg', upload_to='farm_group_media')
