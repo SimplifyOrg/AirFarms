@@ -104,7 +104,7 @@ function useWorflow(farm, user, setNodes, setEdges) {
                         title: `Activity saved`,
                         description: ``,
                         status: 'success',
-                        duration: 9000,
+                        duration: 3000,
                         isClosable: true,
                       })
                     navigate('/workflow', {

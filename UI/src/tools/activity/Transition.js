@@ -176,6 +176,9 @@ function Transition(props) {
             reject: false
         }
 
+        onSubmitProps.setSubmitting(false)
+        onSubmitProps.resetForm()
+
         // Add work to the selected node
         addTransitionApproval(transitionApproval)
     }

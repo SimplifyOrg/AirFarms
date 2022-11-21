@@ -147,16 +147,32 @@ function WorkflowDiagram(props) {
                 transition: 
                 {
                     id: "1",
-                    previous: parseInt(params.source),
-                    next: parseInt(params.target),
+                    previous: params.source,
+                    next: params.target,
                     associatedFlow: "1",
                     need_approval: false,
                     transitionapprovals: []
                 }
             }
         }
-        edgeParams.source = parseInt(edgeParams.source)
-        edgeParams.target = parseInt(edgeParams.target)
+
+        if (typeof edgeParams.source === 'string' || edgeParams.source instanceof String)
+        {
+            if(!(edgeParams.source).includes('dnd') && !(edgeParams.source).includes('n1'))
+            {
+                edgeParams.source = parseInt(edgeParams.source)
+                edgeParams.data.transition.previous = parseInt(edgeParams.source)
+            }
+        }
+        if (typeof edgeParams.target === 'string' || edgeParams.target instanceof String)
+        {
+            if(!(edgeParams.target).includes('dnd') && !(edgeParams.target).includes('n1'))
+            {
+                edgeParams.target = parseInt(edgeParams.target)
+                edgeParams.data.transition.next = parseInt(edgeParams.target)
+            }
+        }
+
         let copyEdgeParams = edgeParams
         setEdges((eds) => addEdge(edgeParams, eds))
         addEdgeLocal(copyEdgeParams)
@@ -353,6 +369,7 @@ function WorkflowDiagram(props) {
         },
         [reactFlowInstance, workflow]
     );
+    
 
   return (
     <div className="workflow">
@@ -382,7 +399,7 @@ function WorkflowDiagram(props) {
             <Background color={useColorModeValue('white', 'gray.800')} variant="lines" gap={6} size={1} />
           </ReactFlow>
         </div>
-        <Sidebar patchWorkflow={props.patchWorkflow} setNodes={setNodes} setEdges={setEdges}/>
+        <Sidebar saveWorkflow={saveWorkflow}/>
       </ReactFlowProvider>
     </div>
   )

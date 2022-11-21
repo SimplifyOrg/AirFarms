@@ -22,6 +22,7 @@ import Transition from './Transition';
 import WorkflowContext from '../../utils/WorkflowContext';
 import FarmContext from '../../utils/FarmContext';
 import JsonFlowContext from '../../utils/JsonFlowContext';
+import ExecutionContext from '../../utils/ExecutionContext';
 
 const foreignObjectSize = 70;
 
@@ -99,6 +100,7 @@ export default function CustomEdge({
     const [boxColor, SetBoxColor] = useState('green')
     const {workflow} = useContext(WorkflowContext)
     const {farm} = useContext(FarmContext)
+    const {execution, setExecution} = useContext(ExecutionContext)
     const {jsonFlow, setJsonFlow} = useContext(JsonFlowContext)
 
     const addApprover = useCallback((user) => {
@@ -116,40 +118,12 @@ export default function CustomEdge({
         }
     }, [approvers]);
 
-    const updateWorkflowStates = (authProvider, workflowObject, config) => {
-        let statedata = {
-            currentStates: workflowObject.workflow.currentStates
-        }
-        authProvider.authPatch(`/activity/workflow/handle/${workflowObject.workflow.id}/`, statedata, config)
+    const updateWorkflowStates = (authProvider, exec, config) => {
+        
+        authProvider.authPut(`/activity/execution/handle/${exec.id}/`, exec, config)
         .then(res => {
             console.log(res);
-            console.log(res.data);
-            const jsondata = {
-                jsonFlow: JSON.stringify(workflowObject),
-                workflow: workflowObject.workflow.id,
-                farm: farm.id
-            }
-            authProvider.authGet(`/activity/json-workflow/handle/?workflow=${workflowObject.workflow.id}`, config)
-            .then(resQueryJSON => {
-                authProvider.authPatch(`/activity/json-workflow/handle/${resQueryJSON.data[0].id}/`, jsondata, config, false)
-                .then(resJSON =>{
-                    console.log(resJSON);
-                    console.log(resJSON.data);
-                    // set workflow context with updated workflow object with database ids
-                    // setWorkflow(resJSON.data.jsonFlow)
-                    localStorage.setItem(workflow, resJSON.data.jsonFlow)
-                    setJsonFlow(resJSON.data)
-                })
-                .catch(errorJSON => {
-                    console.log(errorJSON);
-                    console.log(errorJSON.data);
-                }) 
-            })
-            .catch(errorQueryJSON => {
-                console.log(errorQueryJSON);
-                console.log(errorQueryJSON.data);
-            })
-            
+            console.log(res.data);                      
         })
         .catch(error => {
             console.log(error);
@@ -157,19 +131,19 @@ export default function CustomEdge({
         })
     }
 
-    const patchWorkflow = (workflowObj) => {
+    const patchExecution = (exec) => {
         let config = {
             headers: {
                 'Accept': 'application/json'
             }
         }
         const authProvider = AuthProvider()
-        authProvider.authGet(`/activity/workflow/handle/?id=${workflowObj.workflow.id}`, config)
+        authProvider.authGet(`/activity/execution/handle/?id=${exec.id}`, config)
         .then(getWorkflow => {
             if(getWorkflow.data.length !== 0)
             {
                 // Update workflow states
-                updateWorkflowStates(authProvider, workflowObj, config)
+                updateWorkflowStates(authProvider, exec, config)
             }
         })
         .catch(errorGetWorkflow => {
@@ -221,19 +195,19 @@ export default function CustomEdge({
         // Add the next state in current states
         // Remove prev state from current state.
 
-        if(move)
+        if(move && execution !== null)
         {
-            for(let k = 0; k < workflowObj.workflow.currentStates; ++k)
+            let exec = execution;
+            for(let k = 0; k < exec.currentStates; ++k)
             {
-                if(workflowObj.workflow.currentStates[k] === data.transition.previous)
+                if(exec.currentStates[k] === data.transition.previous)
                 {
-                    workflowObj.workflow.currentStates[k] = data.transition.next;
-                    patchWorkflow(workflowObj)
-                    // setWorkflow(JSON.stringify(workflowObj))
-                    localStorage.setItem(workflow, JSON.stringify(workflowObj));
+                    exec.currentStates[k] = data.transition.next;
                     break;
                 }
             }
+            setExecution(exec)
+            patchExecution(exec)
         }
 
     }

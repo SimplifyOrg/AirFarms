@@ -2,11 +2,12 @@ import React, {useContext, useState, useCallback} from 'react'
 import FormikControl from '../../components/FormikControl';
 import {Form, Formik} from 'formik'
 import * as Yup from 'yup'
-import { HStack, Button, Box } from '@chakra-ui/react';
+import { HStack, Button, Box, useColorModeValue } from '@chakra-ui/react';
 import UserContext from '../../utils/UserContext'
 import WorkflowContext from '../../utils/WorkflowContext'
 import NodeContext from '../../utils/NodeContext';
 import Assignee from './Assignee';
+import { AuthProvider } from '../../utils/AuthProvider';
 
 function Work(props) {
 
@@ -15,6 +16,7 @@ function Work(props) {
     const { workflow, setWorkflow } = useContext(WorkflowContext);
     const [workid, SetWorkid] = useState(0);
     let initialAssignee = []
+    let notifierSet = new Set()
     let assigneeSet = new Set()
     const [assignees, SetAssignees] = useState(initialAssignee)
 
@@ -23,12 +25,12 @@ function Work(props) {
         return `${node.id}${workid}`;
     }
 
-    const addAssignee = useCallback((user) => {
+    const addAssignee = useCallback((role) => {
         
-        if(!assigneeSet.has(user.assignee.id))
+        if(!assigneeSet.has(role.id))
         {
-            assigneeSet.add(user.assignee.id)
-            initialAssignee.push(user)
+            assigneeSet.add(role.id)
+            initialAssignee.push(role)
             SetAssignees(initialAssignee.slice())
             // props.addAssignee(user)
         }
@@ -87,27 +89,113 @@ function Work(props) {
         // })
     }
 
-    const onSubmit = (values, onSubmitProps) => {
+    const sendNotification = async (ass, notif) => {
+        const authProvider = AuthProvider()
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+
+        let notifierSet = new Set()
+        for(let i = 0; i < ass.length; ++i)
+        {
+            
+            await authProvider.authGet(`/account/user/?groups=${ass[i].id}`, config)
+            .then(res =>{
+                console.log(res);
+                console.log(res.data);
+                for(let j = 0; j < res.data.length; ++j)
+                {
+                    notifierSet.add(res.data[j].id)
+                }
+                
+            })
+            .catch(error => {
+                console.log(error);
+                console.log(error.data);
+            })
+        }
+
+        for(let i = 0; i < notif.length; ++i)
+        {
+            notifierSet.add(notif[i])
+        }
+
+        let arr = Array.from(notifierSet)
+
+        for(let i = 0; i < arr.length; ++i)
+        {
+            const body = {
+                sender: user.data.id,
+                receiver: arr[i],
+                notification_type: '2'
+            }
+    
+            authProvider.authPost(`/notification/data/handle/`, body, config, false)
+            .then(res =>{
+                console.log(res);
+                console.log(res.data);
+            })
+            .catch(error => {
+                console.log(error);
+                console.log(error.data);
+            })
+        }
+
+        
+    }
+
+    const onSubmit = async (values, onSubmitProps) => {
         
         let ass = []
-        assignees.forEach(item => ass.push(item.assignee.id))
-        
-        if(!assigneeSet.has(user.data.id))
-        {
-            assigneeSet.add(user.data.id)
-            ass.push(user.data.id)
+        let notoif = [];
+        const authProvider = AuthProvider()
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
         }
-        
+
+        for(let i = 0; i < assignees.length; ++i)
+        {
+            ass.push(assignees[i]);
+            await authProvider.authGet(`/account/user/?groups=${assignees[i].id}`, config)
+            .then(res => {
+                console.log(res);
+                console.log(res.data);
+
+                if (!notifierSet.has(user.data.id)) {
+                    notifierSet.add(user.data.id);
+                    notoif.push(user.data.id);
+                }
+                for (let j = 0; j < res.data.length; ++j) 
+                {
+                    if (!notifierSet.has(res.data[j].id)) {
+                        notifierSet.add(res.data[j].id);
+                        notoif.push(res.data[j].id);
+                    }
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                console.log(error.data);
+            });
+        }
+
         const work = {
             id: `temp_${getWorkId()}`,
+            title: values.title,
             assignee: ass,
-            notifiers: ass,
+            notifiers: notoif,
             notes: values.notes,
             associatedState: node?.id,
             completion_date: "",
             has_finished: "false",
             is_halted: "false"
         }
+
+        sendNotification(ass, notoif)
 
         // Add work to the selected node
         addWork(node?.id, work)
@@ -123,22 +211,35 @@ function Work(props) {
     const validationSchema = Yup.object({
         notes: Yup.string()
             .required('Required'),
+        title: Yup.string()
+            .required('Required'),
     })
 
     const initialValues = {
-        notes: ''
+        title: props.initial? props.initial.title:'',
+        notes: props.initial? props.initial.notes:''
     }
 
   return (
-        <Box bg='#BFD1FD' maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
+        <Box bg={useColorModeValue('whiteAlpha.700','gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
             <Formik
                 initialValues={initialValues}
                 onSubmit={onSubmit}
                 validationSchema={validationSchema}>
                 {formik => {
+                console.log(formik)
                 return (
                     <Form>
-                        <HStack>                                              
+                        <HStack> 
+                            <FormikControl
+                                control='chakraInput'
+                                type='text'
+                                label='Title'
+                                name='title'
+                                required
+                                color="orange.400"
+                                placeholder="Title"
+                            />                                          
                             <FormikControl
                                 control='chakraTextArea'
                                 type='text'
