@@ -108,8 +108,8 @@ export const AuthProvider = () => {
 
     const authPost = async (url, body, init, isLogin) => {
         
-        // let domain = `http://127.0.0.1:8000`;
-        let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
+        let domain = `http://127.0.0.1:8000`;
+        // let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
         let location = domain.concat("", url);
         init = init || {};
         if(!isLogin)
@@ -134,8 +134,8 @@ export const AuthProvider = () => {
         init = init || {};
         await fetchValidToken();
         const token = await tokenProvider.getToken();
-        // let domain = `http://127.0.0.1:8000`;
-        let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
+        let domain = `http://127.0.0.1:8000`;
+        // let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
         let location = domain.concat("", url);
         init.headers = {
             ...init.headers,
@@ -151,8 +151,8 @@ export const AuthProvider = () => {
         init = init || {};
         await fetchValidToken();
         const token = await tokenProvider.getToken();
-        // let domain = `http://127.0.0.1:8000`;
-        let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
+        let domain = `http://127.0.0.1:8000`;
+        // let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
         let location = domain.concat("", url);
         init.headers = {
             ...init.headers,
@@ -167,8 +167,8 @@ export const AuthProvider = () => {
         init = init || {};
         await fetchValidToken();
         const token = await tokenProvider.getToken();
-        // let domain = `http://127.0.0.1:8000`;
-        let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
+        let domain = `http://127.0.0.1:8000`;
+        // let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
         let location = domain.concat("", url);
         init.headers = {
             ...init.headers,
