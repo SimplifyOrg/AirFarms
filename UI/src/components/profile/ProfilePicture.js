@@ -1,5 +1,8 @@
-import { useCallback,
-    useContext } from 'react';
+import { 
+    useCallback,
+    useContext,
+    useState
+} from 'react';
 import {
     Heading,
     Avatar,
@@ -9,16 +12,35 @@ import {
     Flex,
     Text,
     Stack,
-    Button,
+    IconButton,
     useColorModeValue,
+    Portal,
+    Popover,
+    PopoverTrigger,
+    PopoverContent,
+    PopoverArrow,
+    PopoverHeader,
+    PopoverCloseButton,
+    PopoverBody,
   } from '@chakra-ui/react';
+  import {EditIcon} from '@chakra-ui/icons'
   import EditableComponent from '../EditableComponent'
   import { AuthProvider } from '../../utils/AuthProvider';
   import UserContext from '../../utils/UserContext';
+import UpdatePicture from './UpdatePicture';
   
   export default function ProfilePicture(props) {
 
     const {user, setUser} = useContext(UserContext)
+    const [hover, setHover] = useState(false);
+
+    const handleMouseIn = () => {
+        setHover(true);
+    };
+
+    const handleMouseOut = () => {
+        setHover(false);
+    };
     
     const updateUser = (data) => {
         if(user)
@@ -83,6 +105,14 @@ import {
         
     }, []);
 
+    const updatePicture = useCallback((data) => {
+
+        let updatedUser = user;
+        updatedUser.picture = data.image;
+        setUser(updatedUser)
+        
+    }, []);
+
     return (
       <Center py={6}>
         <Box
@@ -104,13 +134,30 @@ import {
             <Avatar
               size={'xl'}
               src={
-                props.user.picture
+                user.picture
               }
-              name={props.user.data.first_name+' '+props.user.data.last_name}
+              name={user.data.first_name+' '+user.data.last_name}
               css={{
                 border: '2px solid white',
               }}
-            />
+              onMouseOver={handleMouseIn} onMouseOut={handleMouseOut}
+            >
+                {hover?<Popover isLazy>
+                <PopoverTrigger>
+                    <IconButton icon={<EditIcon/>}/>
+                </PopoverTrigger>
+                <Portal>
+                    <PopoverContent>
+                        <PopoverArrow />
+                        <PopoverHeader>New document</PopoverHeader>
+                        <PopoverCloseButton />
+                        <PopoverBody>
+                            <UpdatePicture updatePicture={updatePicture}/>
+                        </PopoverBody>
+                    </PopoverContent>
+                </Portal>
+            </Popover>:<></>}
+            </Avatar>
           </Flex>
   
           <Box p={6}>
