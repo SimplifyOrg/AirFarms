@@ -103,12 +103,17 @@ function Signup() {
     const [error, setError] = React.useState('')
     const [errorFlag, setErrorFlag] = React.useState(false)
 
+    // const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
+    const phoneRegExp = /^\+/
+
+
     const validationSchema = Yup.object({
         name: Yup.string().required('Required'),
         email: Yup.string()
             .email('Invalid email ID')
             .required('Required'),
         phone: Yup.string()
+            .matches(phoneRegExp, 'Region code is missing')
             .required('Required'),
         password: Yup.string()
             .required('Required'),
@@ -181,8 +186,8 @@ function Signup() {
                     color="orange.400"
                 />
                 <FormikControl
-                    control='chakraDatePicker'
-                    type='text'
+                    control='chakraInput'
+                    type="date"
                     label='Birth Date'
                     name='birthDate'
                     required

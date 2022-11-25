@@ -32,6 +32,7 @@ function ChakraInput(props) {
                                 if(handleFileUpload !== null && handleFileUpload !== undefined)
                                 {
                                     handleFileUpload(event)
+                                    form.setFieldValue("files", event.target.files)
                                 }                            
                             }}
                             />:
