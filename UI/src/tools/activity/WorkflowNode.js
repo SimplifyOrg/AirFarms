@@ -4,7 +4,7 @@ import {
     Menu,
     MenuItem,
     MenuButton,
-    MenuList,
+    Center,
     Box,
     AvatarGroup,
     Avatar,
@@ -20,9 +20,11 @@ import {
     VStack,
     HStack,
     Checkbox,
-    Text
+    Text,
+    Wrap,
+    WrapItem
  } from '@chakra-ui/react';
-import { MinusIcon, AddIcon, ArrowRightIcon } from '@chakra-ui/icons'
+import { AttachmentIcon } from '@chakra-ui/icons'
 import Work from './Work';
 import NodeContext from '../../utils/NodeContext';
 import FarmContext from '../../utils/FarmContext';
@@ -35,26 +37,37 @@ import EditableComponent from '../../components/EditableComponent';
 import useWorflow from './useWorflow';
 import WorkModal from './WorkModal';
 import Document from './Document';
+import DocumentThumbnail from './DocumentThumbnail';
 
 const handleStyle = { left: 10 };
 
 function WorkflowNode({id, data}) {
+    
+    const [workList, SetWorkList] = useState(new Map())
+    const addWorkInMap = (key, value) => {
+        // SetExecutions(prev => new Map([...prev, [key, value]]))
+        SetWorkList(new Map(workList.set(key, value)))
+        // console.log(executions)
+    }
 
-    let initialMembers = []
-    let workSet = new Set()
-    let initialWorks = []
-    const [workList, SetWorkList] = useState(initialWorks)
-    let docSet = new Set()
-    let initialDocs = []
-    const [docList, SetDocList] = useState(initialDocs)
+    const [docList, SetDocList] = useState(new Map())
+    const addDoc = (key, value) => {
+        SetDocList(new Map(docList.set(key, value)))
+    }
     const [members, SetMembers] = useState([])
     const [nodeColor, SetNodeColor] = useState('blue.200')
     const updateNodeInternals = useUpdateNodeInternals();
 
+    const [assignees, SetAssignees] = useState(new Map())
+    const addAssigneeInMap = (key, value) => {
+        SetAssignees(new Map(assignees.set(key, value)))
+    }
 
-    let initialAssignee = []
-    let assigneeSet = new Set()
-    const [assignees, SetAssignees] = useState(initialAssignee)
+    const [candidateAssignees, SetCandidateAssignees] = useState(new Map())
+    const addCandidateAssigneeInMap = (key, value) => {
+        SetCandidateAssignees(new Map(candidateAssignees.set(key, value)))
+    }
+
     const nodes = useNodes();
     
     const {node} = useContext(NodeContext)
@@ -72,12 +85,11 @@ function WorkflowNode({id, data}) {
         if(data?.works?.length !== 0)
         {
             // for(let i = 0; i < data.works.length; ++i)
-            if(workList.length === 0 && !workSet.has(data.works[0].id))
+            if(workList.size === 0 && !workList.has(data.works[0].id))
             {
-                // onChange(data.works[i])
-                workSet.add(data.works[0].id)
-                initialWorks.push(data.works[0])
-                SetWorkList(initialWorks.slice())
+                addWorkInMap(data.works[0].id, data.works[0])
+                // Initalize document list
+                initializeDocList(data.works[0])
                 const listAssignees = []
                 for(let j = 0; j < data.works[0].assignee.length; ++j)
                 {
@@ -90,17 +102,17 @@ function WorkflowNode({id, data}) {
         updateNodeInternals(id)
     }, [])
 
-    useEffect(() => {
-        if(data?.docs?.length !== 0)
-        {
-            // for(let i = 0; i < data.docs.length; ++i)
-            // {
+    // useEffect(() => {
+    //     if(data?.docs?.length !== 0)
+    //     {
+    //         // for(let i = 0; i < data.docs.length; ++i)
+    //         // {
                 
-            // }
-        }
+    //         // }
+    //     }
 
-        updateNodeInternals(id)
-    }, [])
+    //     updateNodeInternals(id)
+    // }, [])
 
     useEffect(() => {
         if(execution !== null && execution?.currentStates !== undefined)
@@ -118,6 +130,39 @@ function WorkflowNode({id, data}) {
         }
     }, [jsonFlow])
 
+    const initializeDocList = (work) => {
+
+        const workId = (work.id).toString().split('_');
+        let check = false;
+        if(workId[0] !== 'temp')
+        {
+            check = true;
+        }
+        if(work.id !== undefined && check)
+        {
+            let config = {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }
+            const authProvider = AuthProvider()
+            authProvider.authGet(`/activity/work-documents/handle/?associatedWork=${work.id}`, config)
+            .then(res =>{
+                console.log(res);
+                console.log(res.data);
+                // Update docList state
+                for(let i = 0; i < res.data.length; ++i)
+                {
+                    addDoc(parseInt(res.data[i].id), res.data[i])
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            })
+        }
+        
+    }
+
     const loadAssignee = (roles) => {
         let localAssigneeSet = new Set()
         for(let i = 0; i < roles.length; ++i)
@@ -134,8 +179,7 @@ function WorkflowNode({id, data}) {
             .then(res => {
                 console.log(res);
                 console.log(res.data);
-                localAssigneeSet.add(res.data[0])
-                addAssignee(Array.from(localAssigneeSet))
+                addAssignee(res.data)
                 updateNodeInternals(id)
             })
             .catch(error => {
@@ -169,17 +213,9 @@ function WorkflowNode({id, data}) {
                 if(currWorkflow.nodes[nodeIndex].data.works[i].id === work.id)
                 {
                     currWorkflow.nodes[nodeIndex].data.works[i] = work;
-                    initialWorks = []
-                    initialWorks.push(work)
-                    if(!workSet.has(work.id))
-                    {
-                        workSet.add(work.id)
-                    }
-                    SetWorkList(initialWorks.slice())
-                    // setWorkflow(JSON.stringify(workflowObj))
+                    addWorkInMap(work.id, work)                    
                     localStorage.setItem(workflow, JSON.stringify(currWorkflow));
                     saveWorkflow();
-                    // patchWorkflow(currWorkflow)
                     break;
                 }
             }
@@ -187,12 +223,10 @@ function WorkflowNode({id, data}) {
     }
 
     const onChange = useCallback((work) => {
-        if(workList.length === 0 && !workSet.has(work.id))
+        if(workList.size === 0 && !workList.has(work.id))
         {
             // Add new work item
-            workSet.add(work.id)
-            initialWorks.push(work)
-            SetWorkList(initialWorks.slice())
+            addWorkInMap(work.id, work)
             saveWorkflow();
         }
         else
@@ -204,27 +238,22 @@ function WorkflowNode({id, data}) {
 
     const updateDocList = useCallback((values, onSubmitProps) => {
 
-        console.log(values)
-        const workId = (workList[0].id).toString().split('_');
+        // console.log(values)
+        const workArray = [...workList.keys()]
+        const workId = (workArray[0]).toString().split('_');
         let check = false;
         if(workId[0] !== 'temp')
         {
             check = true;
         }
-        if(workList[0].id !== undefined && check)
+        if(workArray[0] !== undefined && check)
         {
-            const data = {
-                title: values.titledoc,
-                file: values.document,
-                associatedWork: workList[0].id
-            }
-
             // Create an object of formData
             const formData = new FormData();
 
-            formData.append('title', values.name)
-            formData.append('file', file)
-            formData.append('associatedWork', workList[0].id)
+            formData.append('title', values.title)
+            formData.append('file', values.files[0])
+            formData.append('associatedWork', workArray[0])
 
             let config = {
                 headers: {
@@ -236,12 +265,12 @@ function WorkflowNode({id, data}) {
             .then(res =>{
                 console.log(res);
                 console.log(res.data);
-                // TODO: Update docList
+                // Update docList
+                addDoc(parseInt(res.data.id), res.data)
 
             })
             .catch(error => {
                 console.log(error);
-                console.log(error.data);
             })
         }
         
@@ -321,15 +350,37 @@ function WorkflowNode({id, data}) {
         
         for(let i = 0; i < roles.length; ++i)
         {
-            if(!assigneeSet.has(roles[i].id))
-            {
-                assigneeSet.add(roles[i].id)
-                initialAssignee.push(roles[i])
-            }
+            addAssigneeInMap(roles[i].id, roles[i])
         }
-        SetAssignees(initialAssignee.slice())
 
     }, [assignees]);
+
+    // const onOpen = useCallback(async () => {
+        
+    //     const currWorkflow = localStorage.getItem(workflow);
+    //     const workflowObj = JSON.parse(currWorkflow)
+
+    //     const authProvider = AuthProvider()
+    //     let config = {
+    //         headers: {
+    //             'Accept': 'application/json'
+    //         }
+    //     }
+    //     await authProvider.authGet(`/activity/work-group/handle/?associatedFlow=${workflowObj.workflow.id}&&ordering=-id`, config)
+    //     .then(res =>{
+    //         console.log(res);
+    //         console.log(res.data);
+    //         for(let j = 0; j < res.data.length; ++j)
+    //         {
+    //             addCandidateAssigneeInMap(res.data[j].id, res.data[j])                          
+    //         }
+
+    //     })
+    //     .catch(error => {
+    //         console.log(error);
+    //     })
+
+    // }, []);
     
   return (
     <Box bg={nodeColor} display='flex' borderWidth='1px' borderRadius='lg' overflow='hidden'>
@@ -340,8 +391,8 @@ function WorkflowNode({id, data}) {
         </div> */}
         <VStack display='flex'>
         <EditableComponent defaultValue={data !== {}? data?.label : 'New Node'} updateTitle={updateTitle}/>
-        {workList.length === 0?
-        <Popover>
+        {workList.size === 0?
+        <Popover isLazy>
             <PopoverTrigger>
                 <Button>Add work</Button>
             </PopoverTrigger>
@@ -359,8 +410,8 @@ function WorkflowNode({id, data}) {
         }
         <VStack display='flex' borderWidth='1px' borderRadius='lg' overflow='hidden'>
         {
-            workList.length === 0 ? <p></p>: workList.map((work, idx) => {
-                const workId = (work.id).toString().split('_');
+            workList.size === 0 ? <p></p>: [...workList].map((work, idx) => {
+                const workId = (work[1].id).toString().split('_');
                 let check = false;
                 if(workId[0] !== 'temp')
                 {
@@ -368,16 +419,17 @@ function WorkflowNode({id, data}) {
                 }
                 return(
                     <HStack borderColor='blue.400' borderWidth='1px' borderRadius='md' overflow='hidden'>
-                        <WorkModal mr={2} onChange={onChange} addAssignee={addAssignee} work={work}/>
-                        {check?<Checkbox isChecked={work.has_finished === 'true' || work.has_finished === true} size='sm' colorScheme='green' borderColor='blue.400' id={idx} onChange={(e)=>{sendSelection(e, work)}}></Checkbox>:<Checkbox size='sm' colorScheme='green' iconColor='blue.400' id={idx} isDisabled></Checkbox>}
+                        <WorkModal mr={2} onChange={onChange} addAssignee={addAssignee} work={work[1]}/>
+                        {check?<Checkbox isChecked={work[1].has_finished === 'true' || work[1].has_finished === true} size='sm' colorScheme='green' borderColor='blue.400' id={idx} onChange={(e)=>{sendSelection(e, work[1])}}></Checkbox>:<Checkbox size='sm' colorScheme='green' iconColor='blue.400' id={idx} isDisabled></Checkbox>}
                     </HStack>
                 )
             })
         }
-        { workList.length > 0?
-        <Popover>
+        <HStack>
+        { workList.size > 0?
+        <Popover align='left'>
             <PopoverTrigger>
-                <Button>Attach document</Button>
+                <Button variant='ghost' size='xs'><AttachmentIcon/></Button>
             </PopoverTrigger>
             <Portal>
                 <PopoverContent>
@@ -385,28 +437,31 @@ function WorkflowNode({id, data}) {
                     <PopoverHeader>New document</PopoverHeader>
                     <PopoverCloseButton />
                     <PopoverBody>
-                        <Document work={workList[0].id} updateDocList={updateDocList} onFileChange={onFileChange}/>
+                        <Document work={[...workList]} updateDocList={updateDocList} onFileChange={onFileChange}/>
                     </PopoverBody>
                 </PopoverContent>
             </Portal>
         </Popover> : <></>
-        }
-        <AvatarGroup size='xs' max={2}>
+        }  
+        <Wrap spacing='3px'>      
         {
-            docList.length === 0 || workList.length === 0? <p></p>: docList.map((doc, idx) => {
+            docList.size === 0 || workList.size === 0? <p></p>: [...docList].map((key, value) => {
                 
                 return(
-                    <Avatar key={idx} name={doc.title} />
+                    <WrapItem>
+                        <DocumentThumbnail doc={key[1]} />
+                    </WrapItem>
                 )
             })
         }
-        </AvatarGroup>
+        </Wrap>
+        </HStack>
         </VStack>
         <AvatarGroup size='xs' max={2}>
         {
-            assignees.length === 0 ? <></>: assignees.map((assignee, idx) => {
+            assignees.size === 0 ? <></>: [...assignees].map((assignee, idx) => {
             return(
-                <Avatar key={idx} name={(assignee.name).split('_')[0]} src={assignee.image} />
+                <Avatar key={idx} name={(assignee[1].name).split('_')[0]} src={assignee[1].image} />
             )
             })
         }

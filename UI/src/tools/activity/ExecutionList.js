@@ -32,7 +32,7 @@ function ExecutionList({workflow, executions}) {
 
         <>            
             {
-                executions.length === 0? <p></p>: executions.map((execution, idx) => {                    
+                executions === undefined || executions.length === 0? <p></p>: executions.map((execution, idx) => {                    
                     return(
                         <Tr>
                             <Td>{workflow.workflow.title}</Td>

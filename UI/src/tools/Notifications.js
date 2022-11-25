@@ -25,8 +25,8 @@ function Notifications() {
         //TODO: make changes to receive notifications
         if(user.data.id !== undefined && websocket === null)
         {
-            // const websocketLink = `ws://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:9001/messaging/notification/${user.data.id}`
-            const websocketLink = `ws://127.0.0.1:8000/messaging/notification/${user.data.id}`
+            const websocketLink = `ws://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:9001/messaging/notification/${user.data.id}`
+            // const websocketLink = `ws://127.0.0.1:8000/messaging/notification/${user.data.id}`
             const webSock = new WebSocket(websocketLink)
             SetWebsocket(webSock)
 

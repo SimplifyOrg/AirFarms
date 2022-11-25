@@ -21,13 +21,47 @@ import FormikControl from '../../components/FormikControl';
 import {Form, Formik} from 'formik'
 import * as Yup from 'yup'
 
-function RoleUsers({role, users}) {
+function RoleUsers({role}) {
     const { isOpen, onOpen, onClose } = useDisclosure()
 
-    let initialFarmUsers = []
-    let initSet = new Set()
-    const [farmUsers, SetFarmUsers] = useState(initialFarmUsers)
+    const [farmUsers, SetFarmUsers] = useState(new Map())
+    const addFarmUsersInMap = (key, value) => {
+        SetFarmUsers(new Map(farmUsers.set(key, value)))
+    }
+
+    const [assignedUsers, SetAssignedUsers] = useState(new Map())
+    const addAssignedUsersInMap = (key, value) => {
+        SetAssignedUsers(new Map(assignedUsers.set(key, value)))
+    }
     const {farm} = useContext(FarmContext)
+
+    useEffect(() => {
+
+        // const currWorkflow = localStorage.getItem(workflow);
+        // const workflowObj = JSON.parse(currWorkflow)
+
+        const authProvider = AuthProvider()
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+        authProvider.authGet(`/account/user/?groups=${role.id}&&ordering=-id`, config)
+        .then(res =>{
+            console.log(res);
+            console.log(res.data);
+            for(let i = 0; i <  res.data.length; ++i)
+            {
+                // Add assigned users to the state list
+                addAssignedUsersInMap(res.data[i].id, res.data[i])
+            }
+
+        })
+        .catch(error => {
+            console.log(error);
+        })
+
+    }, [])
     
     useEffect(() => {
         // Get all available approvers
@@ -42,45 +76,41 @@ function RoleUsers({role, users}) {
         // These will appear in the drop down on the edge
         if(farm !== null)
         {
-        authProvider.authGet(`/farm/perform/group/?farm=${farm.id}`, config)
-        .then(resPic =>{
-            console.log(resPic);
-            console.log(resPic.data);
-            //TODO: optimize: probably fetch user and all farm related
-            //      details at farm load.
-            for(let i = 0; i < resPic.data.length; ++i)
-            {
-                let farmName = farm.name.toLowerCase() +'_group'
-                let groupName = (resPic.data[i].name).toLowerCase() 
-                if(farmName === groupName)
+
+            authProvider.authGet(`/farm/perform/group/?farm=${farm.id}`, config)
+            .then(resPic =>{
+                console.log(resPic);
+                console.log(resPic.data);
+                //TODO: optimize: probably fetch user and all farm related
+                //      details at farm load.
+                for(let i = 0; i < resPic.data.length; ++i)
                 {
-                    const groupId = resPic.data[i].id
-                    authProvider.authGet(`/account/user/?groups=${groupId}`, config)
-                    .then(res =>{
-                        console.log(res);
-                        console.log(res.data);
-                        for(let j = 0; j < res.data.length; ++j)
-                        {
-                            if(!initSet.has(res.data[j].id))
+                    let farmName = farm.name.toLowerCase() +'_group'
+                    let groupName = (resPic.data[i].name).toLowerCase() 
+                    if(farmName === groupName)
+                    {
+                        const groupId = resPic.data[i].id
+                        authProvider.authGet(`/account/user/?groups=${groupId}`, config)
+                        .then(res =>{
+                            console.log(res);
+                            console.log(res.data);
+                            for(let j = 0; j < res.data.length; ++j)
                             {
-                                initSet.add(res.data[j].id)
-                                initialFarmUsers.push(res.data[j])
-                            }                            
-                        }
-                        SetFarmUsers(initialFarmUsers.slice())
-                    })
-                    .catch(error => {
-                        console.log(error);
-                        console.log(error.data);
-                    })
-                    break;
+                                addFarmUsersInMap(res.data[j].id, res.data[j])                          
+                            }
+                        })
+                        .catch(error => {
+                            console.log(error);
+                            console.log(error.data);
+                        })
+                        break;
+                    }
                 }
-            }
-        })
-        .catch(errorPic => {
-            console.log(errorPic);
-            console.log(errorPic.data);
-        })
+            })
+            .catch(errorPic => {
+                console.log(errorPic);
+                console.log(errorPic.data);
+            })
         }
     }, [])
 
@@ -104,21 +134,14 @@ function RoleUsers({role, users}) {
             .then(res =>{
                 console.log(res);
                 console.log(res.data);
-                if(!initSet.has(values.assignee))
-                {
-                    initSet.add(values.assignee)
-                    initialFarmUsers.push(res.data)
-                    SetFarmUsers(initialFarmUsers.slice())
-                } 
+                addAssignedUsersInMap(values.assignee, res.data) 
             })
             .catch(error => {
                 console.log(error);
-                console.log(error.data);
             })
         })
         .catch(error => {
             console.log(error);
-            console.log(error.data);
         })        
         
         onSubmitProps.setSubmitting(false)
@@ -131,7 +154,7 @@ function RoleUsers({role, users}) {
     })
 
     const initialValues = {
-        approver: ''
+        assignee: ''
     }
 
     return (
@@ -146,13 +169,13 @@ function RoleUsers({role, users}) {
                     <HStack>
                     <List spacing={3}>
                         {
-                            users.length === 0? <p></p>: users.map((user, idx) => {
+                            assignedUsers.size === 0? <p></p>: [...assignedUsers].map((user, idx) => {
                                 
                                 return(
                                     <ListItem>
                                         <HStack>                                        
-                                        <Avatar key={idx} name={user.first_name} />
-                                        <Text>{user.first_name} {user.last_name}</Text>
+                                        <Avatar key={idx} name={user[1].first_name} />
+                                        <Text>{user[1].first_name} {user[1].last_name}</Text>
                                         </HStack>
                                     </ListItem>
                                 )
@@ -173,7 +196,7 @@ function RoleUsers({role, users}) {
                                     placeholder='Select Assignee'
                                     name='assignee'
                                     color="orange.400"
-                                    approvers={farmUsers}
+                                    approvers={Array.from(farmUsers.values())}
                                 />
                                 <Button 
                                     type='submit' 

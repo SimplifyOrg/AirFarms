@@ -15,6 +15,7 @@ import ButtonEdge from './ButtonEdge'
 import UserContext from '../../utils/UserContext';
 import WorkflowContext from '../../utils/WorkflowContext';
 import FarmContext from '../../utils/FarmContext';
+import ExecutionContext from '../../utils/ExecutionContext';
 // import FarmContext from '../../utils/FarmContext';
 import NodeContext from '../../utils/NodeContext';
 import useWorflow from './useWorflow';
@@ -25,6 +26,7 @@ function WorkflowDiagram(props) {
     const {user} = useContext(UserContext)
     // const {farm} = useContext(FarmContext)
     const {node, setNode} = useContext(NodeContext)
+    const {execution} = useContext(ExecutionContext)
     const {workflow} = useContext(WorkflowContext)
     const {farm} = useContext(FarmContext)
     const nodeTypes = useMemo(() => ({ workflowNode: WorkflowNode }), []);
@@ -381,6 +383,7 @@ function WorkflowDiagram(props) {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            nodesConnectable={execution === null? true : false}
             // onConnectStart={onConnectStart}
             // onConnectEnd={onConnectEnd}
             onInit={SetReactFlowInstance}
@@ -395,7 +398,7 @@ function WorkflowDiagram(props) {
             // style={reactFlowStyle}
             defaultEdgeOptions={defaultEdgeOptions}
           >
-            <Controls />
+            <Controls showInteractive={execution === null? true : false}/>
             <Background color={useColorModeValue('white', 'gray.800')} variant="lines" gap={6} size={1} />
           </ReactFlow>
         </div>

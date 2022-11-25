@@ -22,7 +22,7 @@ function WorkModal({onChange, addAssignee, work}) {
                 <ModalHeader>{work.title}</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    <WorkUpdate onChange={onChange} addAssignee={addAssignee} work={work}/>
+                    <WorkUpdate onChange={onChange} addAssigneeInNode={addAssignee} work={work}/>
                 </ModalBody>
             </ModalContent>
         </Modal>

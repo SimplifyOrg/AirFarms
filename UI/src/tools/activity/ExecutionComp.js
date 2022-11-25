@@ -29,14 +29,12 @@ function ExecutionComp({maxWidth}) {
     const [loading, setLoading] = useState(true)    
     const toast = useToast()
     const {user} = useContext(UserContext)
-    let initialExecutions = []
-    let executionsSet = new Set()
     const [executions, SetExecutions] = useState(new Map())
 
     const add = (key, value) => {
         // SetExecutions(prev => new Map([...prev, [key, value]]))
         SetExecutions(new Map(executions.set(key, value)))
-        console.log(executions)
+        // console.log(executions)
     }
 
     const onNewExecution = useCallback(

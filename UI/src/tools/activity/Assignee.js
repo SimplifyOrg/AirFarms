@@ -12,7 +12,10 @@ function Assignee(props) {
     let initialAssignees = []
     let initSet = new Set()
     const { workflow } = useContext(WorkflowContext);
-    const [assignees, SetAssignees] = useState(initialAssignees)
+    const [assignees, SetAssignees] = useState(new Map())
+    const addCandidateAssigneeInMap = (key, value) => {
+        SetAssignees(new Map(assignees.set(key, value)))
+    }
 
     let initialAssigned = []
     let assignedSet = new Set()
@@ -73,34 +76,43 @@ function Assignee(props) {
 
     useEffect(() => {
 
-        const currWorkflow = localStorage.getItem(workflow);
-        const workflowObj = JSON.parse(currWorkflow)
+        // if(props.candidates.length > 0)
+        // {
+        //     for(let j = 0; j < props.candidates.length; ++j)
+        //     {
+        //         if(!initSet.has(props.candidates[j].id))
+        //         {
+        //             initSet.add(props.candidates[j].id)
+        //             initialAssignees.push(props.candidates[j])
+        //         }                            
+        //     }
+        //     SetAssignees(initialAssignees.slice())
+        // }
+        // else
+        {
+            const currWorkflow = localStorage.getItem(workflow);
+            const workflowObj = JSON.parse(currWorkflow)
 
-        const authProvider = AuthProvider()
-        let config = {
-            headers: {
-                'Accept': 'application/json'
+            const authProvider = AuthProvider()
+            let config = {
+                headers: {
+                    'Accept': 'application/json'
+                }
             }
+            authProvider.authGet(`/activity/work-group/handle/?associatedFlow=${workflowObj.workflow.id}&&ordering=-id`, config)
+            .then(res =>{
+                console.log(res);
+                console.log(res.data);
+                for(let j = 0; j < res.data.length; ++j)
+                {    
+                    addCandidateAssigneeInMap(res.data[j].id, res.data[j])                        
+                }
+
+            })
+            .catch(error => {
+                console.log(error);
+            })
         }
-        authProvider.authGet(`/activity/work-group/handle/?associatedFlow=${workflowObj.workflow.id}&&ordering=-id`, config)
-        .then(res =>{
-            console.log(res);
-            console.log(res.data);
-            for(let j = 0; j < res.data.length; ++j)
-            {
-                if(!initSet.has(res.data[j].id))
-                {
-                    initSet.add(res.data[j].id)
-                    initialAssignees.push(res.data[j])
-                }                            
-            }
-            SetAssignees(initialAssignees.slice())
-
-        })
-        .catch(error => {
-            console.log(error);
-            console.log(error.data);
-        })
 
     }, [])
 
@@ -171,7 +183,7 @@ function Assignee(props) {
                             placeholder='Select Assignee'
                             name='assignee'
                             color="orange.400"
-                            approvers={assignees}
+                            approvers={Array.from(assignees.values())}
                         />
                         <Button 
                             type='submit' 

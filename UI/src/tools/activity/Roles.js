@@ -23,14 +23,17 @@ import {
 import FormikControl from '../../components/FormikControl';
 import {Form, Formik} from 'formik'
 import * as Yup from 'yup'
+import {useNavigate} from 'react-router-dom'
 
 function Roles({saveWorkflow}) {
 
+    const navigate = useNavigate()
     const {workflow} = useContext(WorkflowContext)
     const {farm} = useContext(FarmContext)
-    let initSet = new Set()
-    let initialRoles = []
-    const [roles, SetRoles] = useState(initialRoles)
+    const [roles, SetRoles] = useState(new Map())
+    const addRoleInMap = (key, value) => {
+        SetRoles(new Map(roles.set(key, value)))
+    }
     const toast = useToast()
     
     useEffect(() => {
@@ -50,12 +53,7 @@ function Roles({saveWorkflow}) {
             console.log(res.data);
             for(let i = 0; i <  res.data.length; ++i)
             {
-                if(!initSet.has(res.data[i].id))
-                {
-                    initSet.add(res.data[i].id)
-                    initialRoles.push(res.data[i])
-                    SetRoles(initialRoles.slice())
-                }
+                addRoleInMap(res.data[i].id, res.data[i])
             }
 
         })
@@ -113,11 +111,9 @@ function Roles({saveWorkflow}) {
             .then(res =>{
                 console.log(res);
                 console.log(res.data);
-                if(!initSet.has(res.data.id))
+                if(!roles.has(res.data.id))
                 {
-                    initSet.add(res.data.id)
-                    initialRoles.push(res.data)
-                    SetRoles(initialRoles.slice())
+                    addRoleInMap(res.data.id, res.data)
                     addRoleLocal(res.data)
                 }
             })
@@ -149,12 +145,12 @@ function Roles({saveWorkflow}) {
     return (
         <List spacing={3}>
             {
-                roles.length === 0? <p></p>: roles.map((role, idx) => {
+                roles.size === 0? <p></p>: [...roles].map((role, idx) => {
                     
-                    const name = (role.name).split('_')[0]
+                    const name = (role[1].name).split('_')[0]
                     return(
                         <ListItem>
-                            <Role role={role}/>
+                            <Role role={role[1]}/>
                         </ListItem>
                     )
                 })
