@@ -32,7 +32,7 @@ class WorkDocumentsViewSet(viewsets.ModelViewSet):
     queryset = WorkDocuments.objects.all()
     serializer_class = WorkDocumentsSerializer
     filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['id', 'file', 'associatedWork']
+    filterset_fields = ['id', 'associatedWork']
 
 class StateViewSet(viewsets.ModelViewSet):
     permission_classes = [

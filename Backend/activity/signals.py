@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 
 from account.models import User
-from .models import JSONWorkflow, State, Transition, TransitionApproval, Work, Workflow
+from .models import JSONWorkflow, State, Transition, TransitionApproval, Work, WorkGroups, Workflow
 from django.dispatch import receiver
 import json
 
@@ -76,7 +76,7 @@ def CreateWork(work, notifiers, state):
     workOwners = []
     for userId in work['assignee']:
         if userId != None:
-            workOwners.append(User.objects.get(id=userId))
+            workOwners.append(WorkGroups.objects.get(id=userId['id']))
     
     # query all the notifiers objects
     workNotifiers = []
