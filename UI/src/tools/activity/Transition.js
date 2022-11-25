@@ -5,6 +5,7 @@ import * as Yup from 'yup'
 import { HStack, Button, Select, Wrap, FormControl } from '@chakra-ui/react';
 import FarmContext from '../../utils/FarmContext'
 import WorkflowContext from '../../utils/WorkflowContext'
+import ExecutionContext from '../../utils/ExecutionContext';
 import UserContext from '../../utils/UserContext';
 import Approver from './Approver';
 import { AuthProvider } from '../../utils/AuthProvider';
@@ -19,6 +20,7 @@ function Transition(props) {
     const { farm } = useContext(FarmContext);
     const { workflow } = useContext(WorkflowContext);
     const { user } = useContext(UserContext);
+    const {execution} = useContext(ExecutionContext)
     const [transitionid, SetTransitionid] = useState(-1);
     let initialApprovals = []
     let initApprovals = new Map()
@@ -192,7 +194,7 @@ function Transition(props) {
 
   return (
     <>
-        <Formik
+        {execution !== null?<></>:<Formik
             initialValues={initialValues}
             onSubmit={onSubmitApprover}
             validationSchema={validationSchema}>
@@ -219,7 +221,7 @@ function Transition(props) {
                 </Form>
             )
         }}            
-        </Formik>
+        </Formik>}
         <Wrap>
             {
                 approvals.length === 0 ? <></>: approvals.map((approver, idx) => {

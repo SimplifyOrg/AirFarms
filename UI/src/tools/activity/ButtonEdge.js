@@ -268,7 +268,7 @@ export default function CustomEdge({
                     </PopoverContent>
                 </Portal>
             </Popover>
-            <IconButton variant='outline' size='2xs' onClick={() => moveState()} icon={<ArrowRightIcon boxSize={1.5}/>}/>
+            {execution === null?<></>:<IconButton variant='outline' size='2xs' onClick={() => moveState()} icon={<ArrowRightIcon boxSize={1.5}/>}/>}
             </HStack> 
         
           </body>

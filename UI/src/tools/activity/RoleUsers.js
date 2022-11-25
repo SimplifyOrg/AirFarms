@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react'
 import { AuthProvider } from '../../utils/AuthProvider'
 import FarmContext from '../../utils/FarmContext'
+import ExecutionContext from '../../utils/ExecutionContext'
 import FormikControl from '../../components/FormikControl';
 import {Form, Formik} from 'formik'
 import * as Yup from 'yup'
@@ -34,6 +35,7 @@ function RoleUsers({role}) {
         SetAssignedUsers(new Map(assignedUsers.set(key, value)))
     }
     const {farm} = useContext(FarmContext)
+    const {execution} = useContext(ExecutionContext)
 
     useEffect(() => {
 
@@ -182,7 +184,7 @@ function RoleUsers({role}) {
                             })
                         }
                     </List>
-                    <Divider orientation='vertical'/>
+                    {execution !== null? <></>:<><Divider orientation='vertical'/>
                     <Formik
                     initialValues={initialValues}
                     onSubmit={onSubmitFarmUser}
@@ -210,7 +212,7 @@ function RoleUsers({role}) {
                         </Form>
                     )
                 }}            
-                </Formik>
+                </Formik></>}
                 </HStack>
                 </ModalBody>
             </ModalContent>

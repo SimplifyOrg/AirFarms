@@ -24,12 +24,14 @@ import FormikControl from '../../components/FormikControl';
 import {Form, Formik} from 'formik'
 import * as Yup from 'yup'
 import {useNavigate} from 'react-router-dom'
+import ExecutionContext from '../../utils/ExecutionContext'
 
 function Roles({saveWorkflow}) {
 
     const navigate = useNavigate()
     const {workflow} = useContext(WorkflowContext)
     const {farm} = useContext(FarmContext)
+    const {execution} = useContext(ExecutionContext)
     const [roles, SetRoles] = useState(new Map())
     const addRoleInMap = (key, value) => {
         SetRoles(new Map(roles.set(key, value)))
@@ -155,7 +157,7 @@ function Roles({saveWorkflow}) {
                     )
                 })
             }
-            <ListItem>
+            {execution !== null?<></>:<ListItem>
                 <Popover>
                     <PopoverTrigger>
                         <Button>Add role</Button>
@@ -200,7 +202,7 @@ function Roles({saveWorkflow}) {
                         </PopoverContent>
                     </Portal>
                 </Popover>
-            </ListItem>
+            </ListItem>}
         </List>
     )
 }
