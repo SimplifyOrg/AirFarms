@@ -11,6 +11,7 @@ import Navigation from './routes/index'
 import NodeContext from './utils/NodeContext';
 import JsonFlowContext from './utils/JsonFlowContext';
 import ExecutionProvider from './utils/ExecutionProvider';
+import DiscussionImageProvider from './utils/DiscussionImageProvider';
 
 function App() {
 
@@ -28,13 +29,15 @@ function App() {
             <FarmProvider>
                 <WorkflowProvider>
                     <ExecutionProvider>
-                        <JsonFlowContext.Provider value={valueJson}>
-                            <NodeContext.Provider value={valueNode}>
-                                <BrowserRouter>
-                                    <Navigation/>
-                                </BrowserRouter>
-                            </NodeContext.Provider>
-                        </JsonFlowContext.Provider>
+                        <DiscussionImageProvider>                            
+                            <JsonFlowContext.Provider value={valueJson}>
+                                <NodeContext.Provider value={valueNode}>
+                                    <BrowserRouter>
+                                        <Navigation/>
+                                    </BrowserRouter>
+                                </NodeContext.Provider>
+                            </JsonFlowContext.Provider>
+                        </DiscussionImageProvider>
                     </ExecutionProvider>
                 </WorkflowProvider>
             </FarmProvider>
