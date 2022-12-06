@@ -11,6 +11,7 @@ import ComboBox from './ComboBox'
 import ComboBoxGroups from './ComboBoxGroups'
 import ComboBoxWorkflows from './ComboBoxWorkflows'
 import ChakraCheckbox from './ChakraCheckbox'
+import ChakraNumberInput from './ChakraNumberInput'
 // import WysiwygEditor from './WysiwygEditor'
 
 function FormikControl (props) {
@@ -32,6 +33,8 @@ function FormikControl (props) {
         return <ComboBoxWorkflows {...rest} />
     case 'chakraCheckbox':
         return <ChakraCheckbox {...rest} />
+    case 'chakraNumberInput':
+        return <ChakraNumberInput {...rest} />
     default:
       return null
   }

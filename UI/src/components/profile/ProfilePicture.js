@@ -33,13 +33,18 @@ import UpdatePicture from './UpdatePicture';
 
     const {user, setUser} = useContext(UserContext)
     const [hover, setHover] = useState(false);
+    const [holdhover, setHoldhover] = useState(false);
 
     const handleMouseIn = () => {
         setHover(true);
     };
 
     const handleMouseOut = () => {
-        setHover(false);
+        if(!holdhover)
+        {
+            setHover(false);
+        }
+        
     };
     
     const updateUser = (data) => {
@@ -142,7 +147,7 @@ import UpdatePicture from './UpdatePicture';
               }}
               onMouseOver={handleMouseIn} onMouseOut={handleMouseOut}
             >
-                {hover?<Popover isLazy>
+                {hover?<Popover isLazy onOpen={()=>{setHoldhover(true)}} onClose={()=>{setHoldhover(false)}}>
                 <PopoverTrigger>
                     <IconButton icon={<EditIcon/>}/>
                 </PopoverTrigger>

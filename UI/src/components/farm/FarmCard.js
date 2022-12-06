@@ -22,7 +22,7 @@ function FarmCard(props) {
 
     const handleClick = () => {
         setFarm(props.farmBody.farm)
-        navigate('/workflow-list')
+        navigate('/farm')
     }
 
     const archiveFarm = () => {

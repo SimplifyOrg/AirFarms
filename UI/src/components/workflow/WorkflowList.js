@@ -17,6 +17,7 @@ import {
     Th,
     TableCaption,
     TableContainer,
+    VStack,
 } from '@chakra-ui/react'
 import {Link} from 'react-router-dom'
 import { ChevronRightIcon } from '@chakra-ui/icons';
@@ -29,7 +30,7 @@ import ExecutionList from '../../tools/activity/ExecutionList';
 import Execution from '../../tools/activity/Execution';
 import ExecutionComp from '../../tools/activity/ExecutionComp';
 
-function WorkflowList(props) {
+function WorkflowList() {
 
     const { farm } = useContext(FarmContext);
     let initialWorkflows = []
@@ -84,26 +85,27 @@ function WorkflowList(props) {
     }, []);
 
     return (
-        <NavBar>
-            <Breadcrumb marginBlock={1} spacing='8px' separator={<ChevronRightIcon color='gray.500' />}>
+        <>
+            {/* <Breadcrumb marginBlock={1} spacing='8px' separator={<ChevronRightIcon color='gray.500' />}>
                 <BreadcrumbItem>
                     <BreadcrumbLink as={Link} to='/dashboard'>Dashboard</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbItem>
                     <BreadcrumbLink as={Link} to='/farms'>Farms</BreadcrumbLink>
                 </BreadcrumbItem>
+                <BreadcrumbItem>
+                    <BreadcrumbLink as={Link} to='/farm'>{farm === undefined || farm === '' || farm === null? 'Farm':farm.name}</BreadcrumbLink>
+                </BreadcrumbItem>
                 <BreadcrumbItem isCurrentPage>
                     <BreadcrumbLink as={Link} to='/workflow-list'>Workflows</BreadcrumbLink>
                 </BreadcrumbItem>
-            </Breadcrumb>
-
-            <Text>{farm.name}</Text>
+            </Breadcrumb> */}
             
-            <ExecutionComp maxWidth="20%"/>
+            
             
             <Box 
                 id="workflowList"
-                maxH="600px"
+                maxH="300px"
                 borderWidth="2px"
                 borderRadius="lg"
                 overflowY="auto"
@@ -140,7 +142,7 @@ function WorkflowList(props) {
                     </Grid>
                 </Skeleton>
             </Box>
-        </NavBar>
+            </>
         
     )
 }

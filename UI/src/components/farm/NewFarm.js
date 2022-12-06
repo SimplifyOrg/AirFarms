@@ -77,23 +77,23 @@ function NewFarm(props) {
                         duration: 3000,
                         isClosable: true,
                     })
-                    const farmPictureURL = `/farm/perform/manage/farmpicture/`
-                    const farmPicture = {
-                        farm: res.data.id,
-                        description: res.data.description
-                    }
-                    authProvider.authPost(farmPictureURL, farmPicture, config, false)
-                    .then( resPic =>{
-                        console.log(resPic);
-                        console.log(resPic.data);
-                        // dispatch(farmAction(res.data));
-                        // history.push('/create-farm')
-                        props.updateFarmList(res.data)
-                    })
-                    .catch(error =>{
-                        console.log(error);
-                        console.log(error.data);
-                    })
+                    props.updateFarmList(res.data)
+                    // const farmPictureURL = `/farm/perform/manage/farmpicture/`
+                    // const farmPicture = {
+                    //     farm: res.data.id,
+                    //     description: res.data.description
+                    // }
+                    // authProvider.authPost(farmPictureURL, farmPicture, config, false)
+                    // .then( resPic =>{
+                    //     console.log(resPic);
+                    //     console.log(resPic.data);
+                    //     // dispatch(farmAction(res.data));
+                    //     // history.push('/create-farm')
+                    //     props.updateFarmList(res.data)
+                    // })
+                    // .catch(error =>{
+                    //     console.log(error);
+                    // })
 
                     // const discussionBoardFarm = {
                     //     farm: res.data.id
@@ -114,7 +114,6 @@ function NewFarm(props) {
                 })
                 .catch(error => {
                     console.log(error);
-                    console.log(error.data);
                     toast({
                         position: 'top',
                         title: `Farm creation failed!`,
@@ -139,7 +138,6 @@ function NewFarm(props) {
         })
         .catch(errorGet =>{
             console.log(errorGet);
-            console.log(errorGet.data);
         })
         onSubmitProps.setSubmitting(false)
         onSubmitProps.resetForm()

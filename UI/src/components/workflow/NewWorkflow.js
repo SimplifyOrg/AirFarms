@@ -12,12 +12,14 @@ import {AuthProvider} from '../../utils/AuthProvider'
 import UserContext from '../../utils/UserContext'
 import WorkflowContext from '../../utils/WorkflowContext';
 import FarmContext from '../../utils/FarmContext';
+import ExecutionContext from '../../utils/ExecutionContext';
 
 function NewWorkflow() {
 
     const { user } = useContext(UserContext);
     const { farm } = useContext(FarmContext);
     const { workflow, setWorkflow } = useContext(WorkflowContext);
+    const { execution, setExecution } = useContext(ExecutionContext)
     const toast = useToast()
     const navigate = useNavigate()
 
@@ -58,6 +60,12 @@ function NewWorkflow() {
             owner: user.data.id
         };
 
+        // Set execution null
+        // This will allow for workflow to be 
+        // editted. When execution is loaded
+        // workflows cannot be eddited.
+        setExecution(null)
+
         let workflowInit = {
             workflow: {
                 id: "-1",
@@ -86,27 +94,8 @@ function NewWorkflow() {
               workflow: workflowInit,
             }
         })
-
-        // let config = {
-        //     headers: {
-        //       'Content-Type': 'application/json'
-        //     }
-        //   }
-        // const authProvider = AuthProvider()
-        // authProvider.authPost(`/activity/workflow/handle/`, workflow, config, false)
-        // .then(res =>{
-        //     console.log(res);
-        //     console.log(res.data);            
-        //     onSubmitProps.resetForm()
-        //     setWorkflow(JSON.stringify(res.data))
-        //     navigate('/workflow')
-        // })
-        // .catch(error => {
-        //     console.log(error);
-        //     console.log(error.data);
-        // })
-        // onSubmitProps.setSubmitting(false)
-        // onSubmitProps.resetForm()
+        onSubmitProps.setSubmitting(false)
+        onSubmitProps.resetForm()
     }
 
     const validationSchema = Yup.object({

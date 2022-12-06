@@ -76,7 +76,7 @@ function WorkflowCard(props) {
                 console.log(error);
                 console.log(error.data);
             })
-            navigate('/workflow-list')
+            navigate('/farm')
         })
         .catch(error => {
             console.log(error);
