@@ -2,23 +2,28 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from .models import CommentPicture, DiscussionBoard, Post, Comments, PostPicture
 from rest_framework import generics, permissions, viewsets
-from rest_framework.parsers import FormParser
+from rest_framework.filters import OrderingFilter
 from .serializers import CommentListSerializer, CommentPictureSerializer, CreatePostSerializer, CreateCommentSerializer, CommentSerializer, DiscussionBoardSerializer, PostListSerializer, PostPictureSerializer, PostSerializer, UpdateCommentSerializer, UpdatePostSerializer
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
-class PostView(generics.RetrieveAPIView):
+class PostViewSet(viewsets.ModelViewSet):
     permission_classes = [
         permissions.IsAuthenticated,
     ]
+    queryset = Post.objects.all()
     serializer_class = PostSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter,]
+    filterset_fields = ['id', 'discussion', 'user', 'tags']
+    ordering_fields = ['date_posted', 'id']
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data
-        return Response({
-            "post": PostSerializer(user, context=self.get_serializer_context()).data
-        })
+    # def post(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     user = serializer.validated_data
+    #     return Response({
+    #         "post": PostSerializer(user, context=self.get_serializer_context()).data
+    #     })
 
 class CreatePostView(generics.GenericAPIView):
 
@@ -135,9 +140,10 @@ class DiscussionBoardViewSet(viewsets.ModelViewSet):
     permission_classes = [
         permissions.IsAuthenticated,
     ]
-    #parser_classes = (MultiPartParser, FormParser)
     queryset = DiscussionBoard.objects.all()
     serializer_class = DiscussionBoardSerializer
+    filter_backends = [DjangoFilterBackend,]
+    filterset_fields = ['id', 'title']
 
 
 

@@ -69,17 +69,17 @@ class UpdatePostSerializer(serializers.ModelSerializer):
             return data        
         raise serializers.ValidationError("Invalid Details.")
 
-class PostSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()    
+class PostSerializer(serializers.ModelSerializer):   
     class Meta:
         model = Post
-        fields = ('description', 'date_posted', 'tags', 'discussion', 'id')
+        fields = ('__all__')
+        # fields = ('description', 'date_posted', 'tags', 'discussion', 'id')
 
-    def validate(self, data):
-        post = Post.objects.get(id=int(data['id']))
-        if post:
-            return post
-        raise serializers.ValidationError("Invalid Details.")
+    # def validate(self, data):
+    #     post = Post.objects.get(id=int(data['id']))
+    #     if post:
+    #         return post
+    #     raise serializers.ValidationError("Invalid Details.")
 
 class PostListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()

@@ -9,7 +9,7 @@ class DiscussionBoard(models.Model):
     title = models.CharField(max_length=256, default='Discussion Board')
 
 class Post(models.Model):
-	id = models.AutoField(primary_key=True)
+	# id = models.AutoField(primary_key=True)
 	description = models.TextField(blank=True)
 	date_posted = models.DateTimeField(default=timezone.now)
 	tags = models.CharField(max_length=100, blank=True)
