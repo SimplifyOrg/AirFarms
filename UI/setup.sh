@@ -3,7 +3,7 @@ set -e
 
 sudo mkdir /etc/nginx/
 sudo chmod 777 -R /etc/nginx/
-# COPY default conf: pscp -i C:\Users\ABS#\Downloads\machhliui.ppk D:\workdir\FisheryApp\webUI\ui\default.conf.tpl ubuntu@ec2-13-235-51-10.ap-south-1.compute.amazonaws.com:/etc/nginx/default.conf.tpl
+# COPY default conf: pscp -i C:\Users\ABS#\Downloads\machhliui1.ppk D:\workdir\FisheryApp\webUI\ui\default.conf.tpl ubuntu@ec2-13-235-51-10.ap-south-1.compute.amazonaws.com:/etc/nginx/default.conf.tpl
 sudo mkdir /app/
 sudo chmod 777 -R /app/
 # COPY run.sh: pscp -i C:\Users\ABS#\Downloads\machhliui1.ppk D:\workdir\FisheryApp\webUI\ui\run.sh ubuntu@ec2-13-235-51-10.ap-south-1.compute.amazonaws.com:/app/run.sh
