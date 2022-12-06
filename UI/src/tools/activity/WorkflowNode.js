@@ -1,10 +1,10 @@
 import React, {useCallback, useContext, useState, useEffect} from 'react'
-import {Handle, Position, useUpdateNodeInternals, useNodes, useReactFlow } from 'react-flow-renderer'
+import {Handle, Position, useUpdateNodeInternals, useNodes, useReactFlow, getConnectedEdges } from 'react-flow-renderer'
 import { 
     Menu,
     MenuItem,
     MenuButton,
-    Center,
+    IconButton,
     Box,
     AvatarGroup,
     Avatar,
@@ -22,9 +22,11 @@ import {
     Checkbox,
     Text,
     Wrap,
-    WrapItem
+    WrapItem,
+    useToast,
+    Tooltip
  } from '@chakra-ui/react';
-import { AttachmentIcon } from '@chakra-ui/icons'
+import { AttachmentIcon, ArrowRightIcon } from '@chakra-ui/icons'
 import Work from './Work';
 import NodeContext from '../../utils/NodeContext';
 import FarmContext from '../../utils/FarmContext';
@@ -38,6 +40,9 @@ import useWorflow from './useWorflow';
 import WorkModal from './WorkModal';
 import Document from './Document';
 import DocumentThumbnail from './DocumentThumbnail';
+import { BiCommentAdd } from "react-icons/bi";
+import TriggerList from './TriggerList';
+import Timer from '../../components/Timer';
 
 const handleStyle = { left: 10 };
 
@@ -71,7 +76,7 @@ function WorkflowNode({id, data}) {
     const nodes = useNodes();
     
     const {node} = useContext(NodeContext)
-    const {execution} = useContext(ExecutionContext)
+    const {execution, setExecution} = useContext(ExecutionContext)
     const {jsonFlow, setJsonFlow} = useContext(JsonFlowContext)
     const {farm} = useContext(FarmContext)
     const {user} = useContext(UserContext)
@@ -79,7 +84,12 @@ function WorkflowNode({id, data}) {
     const reactFlowInstance = useReactFlow();
     const {saveWorkflow} = useWorflow(farm, user, reactFlowInstance.setNodes, reactFlowInstance.setEdges)
     const [file, SetFile] = useState(null)
-    // const {workflow} = useContext(WorkflowContext)
+    const toast = useToast()
+
+    const [triggers, SetTriggers] = useState(new Map())
+    const addTrigger = (key, value) => {
+        SetTriggers(new Map(triggers.set(key, value)))
+    }
 
     useEffect(() => {
         if(data?.works?.length !== 0)
@@ -100,19 +110,47 @@ function WorkflowNode({id, data}) {
         }
 
         updateNodeInternals(id)
-    }, [])
+    }, [execution])
 
-    // useEffect(() => {
-    //     if(data?.docs?.length !== 0)
-    //     {
-    //         // for(let i = 0; i < data.docs.length; ++i)
-    //         // {
-                
-    //         // }
-    //     }
+    useEffect(() => {
+        
+        if(!(typeof id === 'string' || id instanceof String))
+        {
+            const authProvider = AuthProvider()
+            let config = {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }
 
-    //     updateNodeInternals(id)
-    // }, [])
+            authProvider.authGet(`/activity/workflow/trigger/handle/?associatedState=${id}&&ordering=-creationDate`, config)
+            .then(res => {
+                console.log(res);
+                console.log(res.data);
+                for(let i = 0; i < res.data.length; ++i)
+                {
+                    // addTrigger(res.data[i].id, res.data[i])
+                    authProvider.authGet(`/activity/workflow/handle/?id=${res.data[i].workflowToTrigger}`, config)
+                    .then(resWorkflow => {
+                        console.log(resWorkflow);
+                        console.log(resWorkflow.data);
+                        for(let i = 0; i < resWorkflow.data.length; ++i)
+                        {
+                            onNewTrigger(res.data[i], resWorkflow.data[i])
+                        }
+                    })
+                    .catch(errorWorkflow => {
+                        console.log(errorWorkflow);
+                    })
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            })
+        }
+
+        updateNodeInternals(id)
+    }, [execution])
 
     useEffect(() => {
         if(execution !== null && execution?.currentStates !== undefined)
@@ -121,14 +159,22 @@ function WorkflowNode({id, data}) {
             {
                 if(id === execution.currentStates[i])
                 {
-                    SetNodeColor('green.200');
+                    SetNodeColor('green.500');
                     break;
                 }
-                SetNodeColor('blue.200');
-            }
-            updateNodeInternals(id)
+                else
+                {
+                    SetNodeColor('orange.600');
+                }                
+            }            
         }
-    }, [jsonFlow])
+        else
+        {
+            SetNodeColor('orange.600');
+        }
+        updateNodeInternals(id)
+    }, [jsonFlow, execution])
+
 
     const initializeDocList = (work) => {
 
@@ -145,8 +191,13 @@ function WorkflowNode({id, data}) {
                     'Accept': 'application/json'
                 }
             }
+            let endPoint = `/activity/work-documents/handle/?associatedWork=${work.id}`
+            if(execution !== null)
+            {
+                endPoint = `/activity/execution/work-documents/handle/?associatedExecutionWork=${work.id}`
+            }
             const authProvider = AuthProvider()
-            authProvider.authGet(`/activity/work-documents/handle/?associatedWork=${work.id}`, config)
+            authProvider.authGet(endPoint, config)
             .then(res =>{
                 console.log(res);
                 console.log(res.data);
@@ -236,6 +287,13 @@ function WorkflowNode({id, data}) {
         }
     }, []);
 
+    const onNewTrigger = useCallback((trigger, workflow) => {
+        let trig = trigger
+        trig.workflowToTrigger = workflow
+        addTrigger(trigger.id, trig)
+        updateNodeInternals(id)
+    }, []);
+
     const updateDocList = useCallback((values, onSubmitProps) => {
 
         // console.log(values)
@@ -276,32 +334,6 @@ function WorkflowNode({id, data}) {
         
     }, []);
 
-    // Mark work as complete
-    // Send direct request to database
-    const sendSelection = (e, work) => {
-        let config = {
-            headers: {
-                'Accept': 'application/json'
-            }
-        }
-        const authProvider = AuthProvider()
-        work.has_finished = e.target.checked
-        const finished = {
-            has_finished: e.target.checked
-        }
-        authProvider.authPatch(`/activity/work/handle/${work.id}/`, finished, config)
-        .then(res => {
-            console.log(res);
-            console.log(res.data);
-            onChange(work)
-            //TODO: show banner
-        })
-        .catch(error => {
-            console.log(error);
-            console.log(error.data);
-        })
-    }
-
     const updateTitle = useCallback((title) => {
         
         if(data !== {})
@@ -325,12 +357,10 @@ function WorkflowNode({id, data}) {
                         workflow: currWorkflow.workflow.id,
                         farm: farm.id
                     }
-                    // setWorkflow(JSON.stringify(currWorkflow))
                     localStorage.setItem(workflow, JSON.stringify(currWorkflow));
                     saveWorkflow();
                     setJsonFlow(JSONdata)
                     updateNodeInternals(id)
-                    // patchWorkflow(currWorkflow)
                     break;
                 }
             }            
@@ -338,12 +368,9 @@ function WorkflowNode({id, data}) {
 
     }, []);
 
-    const onFileChange = useCallback((event) => {
-     
+    const onFileChange = useCallback((event) => {     
         // Update the state
-        SetFile(event.target.files[0])
-        // this.setState({ selectedFile: event.target.files[0] });
-       
+        SetFile(event.target.files[0])       
       }, [])
 
     const addAssignee = useCallback((roles) => {
@@ -355,46 +382,227 @@ function WorkflowNode({id, data}) {
 
     }, [assignees]);
 
-    // const onOpen = useCallback(async () => {
+
+    const updateWorkflowStates = (authProvider, exec, config) => {
         
-    //     const currWorkflow = localStorage.getItem(workflow);
-    //     const workflowObj = JSON.parse(currWorkflow)
+        authProvider.authPut(`/activity/execution/handle/${exec.id}/`, exec, config)
+        .then(res => {
+            console.log(res);
+            console.log(res.data);
+            setExecution(res.data)
+            toast({
+                position: 'top',
+                title: `Transition successful`,
+                description: ``,
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+              })
+            updateNodeInternals(id)
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
 
-    //     const authProvider = AuthProvider()
-    //     let config = {
-    //         headers: {
-    //             'Accept': 'application/json'
-    //         }
-    //     }
-    //     await authProvider.authGet(`/activity/work-group/handle/?associatedFlow=${workflowObj.workflow.id}&&ordering=-id`, config)
-    //     .then(res =>{
-    //         console.log(res);
-    //         console.log(res.data);
-    //         for(let j = 0; j < res.data.length; ++j)
-    //         {
-    //             addCandidateAssigneeInMap(res.data[j].id, res.data[j])                          
-    //         }
+    const patchExecution = (exec) => {
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+        const authProvider = AuthProvider()
+        authProvider.authGet(`/activity/execution/handle/?id=${exec.id}`, config)
+        .then(getWorkflow => {
+            if(getWorkflow.data.length !== 0)
+            {
+                // Update workflow states
+                updateWorkflowStates(authProvider, exec, config)
+            }
+        })
+        .catch(errorGetWorkflow => {
+            console.log(errorGetWorkflow);
+        })
+    }
 
-    //     })
-    //     .catch(error => {
-    //         console.log(error);
-    //     })
+    const startWorkflowExecution = (trigger) => {        
+        
+        const authProvider = AuthProvider()
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+        let startState = -1;
 
-    // }, []);
+        let trig = triggers.get(trigger.id)
+        startState = trig.workflowToTrigger.startState;
+
+        if(startState !== -1 && startState !== null)
+        {
+            let body = {
+                associatedFlow: trig.workflowToTrigger.id,
+                currentStates: [startState],
+                initiater: user.data.id
+            }
+
+            authProvider.authPost(`/activity/execution/handle/`, body, config, false)
+            .then(res =>{
+                console.log(res);
+                console.log(res.data);
+                // setExecution()
+                toast({
+                    position: 'top',
+                    title: `Activity execution`,
+                    description: `Successfuly started execution of activity ${trig.workflowToTrigger.title}`,
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                })
+                // onNewExecution(body.associatedFlow, res.data)
+            })
+            .catch(error => {
+                console.log(error);
+                toast({
+                    position: 'top',
+                    title: `Activity execution`,
+                    description: `Failed to start execution of activity ${trig.workflowToTrigger.title}`,
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                })
+            })
+        }
+        else
+        {
+            toast({
+                position: 'top',
+                title: `Activity execution`,
+                description: `Failed to start execution of activity ${trig.workflowToTrigger.title}`,
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            })
+        }
+    }
+
+    const triggerWorkflowExecutions = (currentState) => {
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+        const authProvider = AuthProvider()
+        authProvider.authGet(`/activity/workflow/trigger/handle/?associatedState=${currentState}`, config)
+        .then(getTrigger => {
+            startWorkflowExecution(getTrigger.data[0])
+        })
+        .catch(errorGetWorkflow => {
+            console.log(errorGetWorkflow);
+        })
+    }
+
+    const moveState = () => {
+        // Things to check before moving state
+        // 1. If all the transition approvals approved
+        // 2. If all the mandatory works completed
+
+        // Get workflow JSON object
+        let workflowObj = JSON.parse(localStorage.getItem(workflow))
+
+        let move = true;
+        // TODO: optimize this
+        for(let i = 0; i < workflowObj.nodes?.length; ++i)
+        {
+            for(let j = 0; workflowObj.nodes[i].id === id && j < workflowObj.nodes[i].data.works?.length; ++j)
+            {
+                if(!workflowObj.nodes[i].data.works[j].has_finished 
+                    || workflowObj.nodes[i].data.works[j].is_halted)
+                    {
+                        move = false;
+                        toast({
+                            position: 'top',
+                            title: `Transition failed!`,
+                            description: `Work assigned to the state is incomplete.`,
+                            status: 'error',
+                            duration: 3000,
+                            isClosable: true,
+                          })
+                        break;
+                    }
+            }
+        }
+
+        const connectedEdges = getConnectedEdges([node], workflowObj.edges)
+
+        // TODO: optimize this
+        for( let k = 0; k < connectedEdges.length; ++k)
+        {
+            for(let i = 0; move && i < workflowObj.edges?.length; ++i)
+            {
+                for(let j = 0; workflowObj.edges[i].id === connectedEdges[k].id && j < workflowObj.edges[i].data?.transition?.transitionapprovals?.length; ++j)
+                {
+                    if(!workflowObj.edges[i].data?.transition.transitionapprovals[j].approval 
+                        || workflowObj.edges[i].data?.transition.transitionapprovals[j].reject)
+                        {
+                            move = false;
+                            toast({
+                                position: 'top',
+                                title: `Transition failed!`,
+                                description: `Work is not approved please connect with the supervisor.`,
+                                status: 'error',
+                                duration: 3000,
+                                isClosable: true,
+                            })
+                            break;
+                        }
+                }
+            }
+        }
+
+        // Way to move state is
+        // Add the next state in current states
+        // Remove prev state from current state.
+
+        if(move && execution !== null)
+        {
+            let exec = execution;
+            let setTarget = false;
+            for(let k = 0; k < exec.currentStates.length; ++k)
+            {
+                for(let i = 0; i < connectedEdges.length; ++i)
+                {
+                    if(exec.currentStates[k] === connectedEdges[i].source)
+                    {
+                        triggerWorkflowExecutions(exec.currentStates[k])
+                        if(connectedEdges[i].target !== null || connectedEdges[i].target !== undefined)
+                        {
+                            exec.currentStates[k] = connectedEdges[i].target;
+                            setTarget = true;
+                        }                        
+                        break;
+                    }
+                    
+                }
+            }
+            if(!setTarget)
+            {
+                exec.has_finished = true;
+            }
+            patchExecution(exec)
+        }
+
+    }
     
   return (
     <Box bg={nodeColor} display='flex' borderWidth='1px' borderRadius='lg' overflow='hidden'>
         <Handle type="target" position={Position.Top} />
-        {/* <div>
-            <label htmlFor="text">Work:</label>
-            <input id="work" name="text" onChange={onChange} />
-        </div> */}
         <VStack display='flex'>
-        <EditableComponent defaultValue={data !== {}? data?.label : 'New Node'} updateTitle={updateTitle}/>
-        {workList.size === 0?
-        <Popover isLazy>
+        {execution === null?<HStack><EditableComponent defaultValue={data !== {}? data?.label : 'New Node'} updateTitle={updateTitle}/></HStack>:<Text>{data !== {}? data?.label : 'New Node'}</Text>}
+        {workList.size === 0 && execution === null?
+        <Tooltip label='Add work'><Popover isLazy>
             <PopoverTrigger>
-                <Button>Add work</Button>
+                <Button variant='ghost'><BiCommentAdd/></Button>
             </PopoverTrigger>
             <Portal>
                 <PopoverContent>
@@ -406,28 +614,27 @@ function WorkflowNode({id, data}) {
                     </PopoverBody>
                 </PopoverContent>
             </Portal>
-        </Popover> : <></>
+        </Popover></Tooltip> : <></>
         }
-        <VStack display='flex' borderWidth='1px' borderRadius='lg' overflow='hidden'>
+        <VStack overflow='hidden'>
         {
             workList.size === 0 ? <p></p>: [...workList].map((work, idx) => {
                 const workId = (work[1].id).toString().split('_');
                 let check = false;
-                if(workId[0] !== 'temp')
+                if(workId[0] !== 'temp' && execution !== null)
                 {
                     check = true;
                 }
                 return(
-                    <HStack borderColor='blue.400' borderWidth='1px' borderRadius='md' overflow='hidden'>
-                        <WorkModal mr={2} onChange={onChange} addAssignee={addAssignee} work={work[1]}/>
-                        {check?<Checkbox isChecked={work[1].has_finished === 'true' || work[1].has_finished === true} size='sm' colorScheme='green' borderColor='blue.400' id={idx} onChange={(e)=>{sendSelection(e, work[1])}}></Checkbox>:<Checkbox size='sm' colorScheme='green' iconColor='blue.400' id={idx} isDisabled></Checkbox>}
+                    <HStack overflow='hidden'>
+                        <Tooltip label={work[1].title}><WorkModal mr={2} onChange={onChange} addAssignee={addAssignee} work={work[1]}/></Tooltip>
                     </HStack>
                 )
             })
         }
         <HStack>
-        { workList.size > 0?
-        <Popover align='left'>
+        { workList.size > 0 && execution === null?
+        <Tooltip label='Attach documents'><Popover align='left'>
             <PopoverTrigger>
                 <Button variant='ghost' size='xs'><AttachmentIcon/></Button>
             </PopoverTrigger>
@@ -441,8 +648,9 @@ function WorkflowNode({id, data}) {
                     </PopoverBody>
                 </PopoverContent>
             </Portal>
-        </Popover> : <></>
-        }  
+        </Popover></Tooltip> : <></>
+        }
+
         <Wrap spacing='3px'>      
         {
             docList.size === 0 || workList.size === 0? <p></p>: [...docList].map((key, value) => {
@@ -456,7 +664,24 @@ function WorkflowNode({id, data}) {
         }
         </Wrap>
         </HStack>
+        
         </VStack>
+        {execution === null ||  workList.size === 0? <></> : [...workList].map((work, idx) => {
+                if(!work[1].has_finished)
+                {
+                    return(
+                        <Timer deadline={new Date(work[1].completion_date)}/>
+                    )
+                }
+                else
+                {
+                    return(
+                        <></>
+                    )
+                }
+            })
+        }
+        <TriggerList triggers={Array.from(triggers.values())} node={id} onNewTrigger={onNewTrigger}/>
         <AvatarGroup size='xs' max={2}>
         {
             assignees.size === 0 ? <></>: [...assignees].map((assignee, idx) => {
@@ -466,6 +691,7 @@ function WorkflowNode({id, data}) {
             })
         }
         </AvatarGroup>
+        {execution !== null && execution.currentStates.includes(id)?<IconButton variant='outline' size='md' onClick={() => moveState()} icon={<ArrowRightIcon/>}/>:<></>}
         </VStack>
         <Handle type="source" position={Position.Bottom} id="a" />
     </Box>

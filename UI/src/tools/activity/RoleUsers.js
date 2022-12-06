@@ -87,7 +87,7 @@ function RoleUsers({role}) {
                 //      details at farm load.
                 for(let i = 0; i < resPic.data.length; ++i)
                 {
-                    let farmName = farm.name.toLowerCase() +'_group'
+                    let farmName = farm.name.toLowerCase() +'_'+farm.description.toLowerCase()+'_group'
                     let groupName = (resPic.data[i].name).toLowerCase() 
                     if(farmName === groupName)
                     {

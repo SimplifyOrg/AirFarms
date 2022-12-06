@@ -9,19 +9,23 @@ import { AuthProvider } from '../../utils/AuthProvider'
 import WorkflowContext from '../../utils/WorkflowContext'
 import FarmContext from '../../utils/FarmContext'
 import JsonFlowContext from '../../utils/JsonFlowContext'
+import ExecutionContext from '../../utils/ExecutionContext'
+import UserContext from '../../utils/UserContext'
 import useWorflow from './useWorflow'
 import {useReactFlow} from 'react-flow-renderer'
 
 function Approver(props) {
 
-    const [user, SetUser] = useState(null)
+    const [userlocal, SetUserlocal] = useState(null)
     const [picture, SetPicture] = useState(null)
     const [approval, SetApproval] = useState(undefined)
     const {workflow} = useContext(WorkflowContext)
+    const {execution} = useContext(ExecutionContext)
     const {jsonFlow, setJsonFlow} = useContext(JsonFlowContext)
     const {farm} = useContext(FarmContext)
+    const {user} = useContext(UserContext)
     const reactFlowInstance = useReactFlow();
-    const {saveWorkflow} = useWorflow(farm, user, reactFlowInstance.setNodes, reactFlowInstance.setEdges)
+    const {saveWorkflow} = useWorflow(farm, userlocal, reactFlowInstance.setNodes, reactFlowInstance.setEdges)
 
     // const onDragOver = useCallback((transitionApproval) => {
     //     event.preventDefault();
@@ -45,7 +49,7 @@ function Approver(props) {
             .then(res =>{
                 console.log(res);
                 console.log(res.data);
-                SetUser(res.data[0])
+                SetUserlocal(res.data[0])
 
                 // Get approver's profile picture
                 authProvider.authGet(`/account/profilepicture/?user=${props.id}`, config)
@@ -64,59 +68,16 @@ function Approver(props) {
                 })
                 .catch(errorPic => {
                     console.log(errorPic);
-                    console.log(errorPic.data);
                 })
 
             })
             .catch(error => {
                 console.log(error);
-                console.log(error.data);
             })
 
             
         }
     }, [])
-
-    // const patchWorkflow = (workflowObj) => {
-    //     const authProvider = AuthProvider()
-    //     const JSONdata = {
-    //         jsonFlow: JSON.stringify(workflowObj),
-    //         workflow: workflowObj.workflow.id,
-    //         farm: farm.id
-    //     }
-    //     let config = {
-    //         headers: {
-    //             'Accept': 'application/json'
-    //         }
-    //     }
-    //     authProvider.authGet(`/activity/json-workflow/handle/?workflow=${workflowObj.workflow.id}`, config)
-    //     .then(res =>{
-    //         console.log(res);
-    //         console.log(res.data);
-    //         if(res.data.length !== 0)
-    //         {
-    //             authProvider.authPut(`/activity/json-workflow/handle/${res.data[0].id}/`, JSONdata, config)
-    //             .then(resJSON =>{
-    //                 console.log(resJSON);
-    //                 console.log(resJSON.data);
-    //                 // set workflow context with updated workflow object with database ids
-    //                 // setWorkflow(resJSON.data.jsonFlow)
-    //                 localStorage.setItem(workflow, JSON.stringify(workflowObj));
-    //                 setJsonFlow(resJSON.data)
-    //             })
-    //             .catch(errorJSON => {
-    //                 console.log(errorJSON);
-    //                 console.log(errorJSON.data);
-    //             })
-    //         }
-    //         // set workflow context with updated workflow object with database ids
-    //         // setWorkflow(resJSON.data.jsonFlow)
-    //     })
-    //     .catch(error => {
-    //         console.log(error);
-    //         console.log(error.data);
-    //     }) 
-    // }
 
     const updateWorkflow = (e) => {
         // Get current workflow's JSON object
@@ -145,7 +106,6 @@ function Approver(props) {
                     SetApproval(currWorkflow.edges[edgeIndex].data.transition.transitionapprovals[i])
                     localStorage.setItem(workflow, JSON.stringify(currWorkflow));                    
                     saveWorkflow()
-                    // patchWorkflow(currWorkflow)
                     break;
                 }
             }
@@ -191,7 +151,7 @@ function Approver(props) {
             approval: e.target.checked
         }
         // props.approval.approval = e.target.checked
-        authProvider.authPatch(`/activity/transition-approval/handle/${id}/`, finished, config)
+        authProvider.authPatch(`/activity/execution/transition-approval/handle/${id}/`, finished, config)
         .then(res => {
             console.log(res);
             console.log(res.data);
@@ -205,10 +165,10 @@ function Approver(props) {
 
   return (
     <WrapItem>
-        <Avatar name={user === null? '':user.first_name} src={picture}>
-            <AvatarBadge variant='outline' colorScheme='green'>
-                {approval !== undefined? <Checkbox isChecked={approval.approval || approval.approval === 'true'} size='sm' colorScheme='green' borderColor='blue.400' id={props.id} onChange={(e)=>{sendApproval(e)}}></Checkbox>:<Checkbox size='sm' colorScheme='green' borderColor='gray.400' isDisabled></Checkbox>}
-            </AvatarBadge>
+        <Avatar name={userlocal === null? '':userlocal.first_name} src={picture}>
+            {execution !== null && user.data.id === userlocal.id?<AvatarBadge variant='outline' colorScheme='green'>
+                {approval !== undefined ? <Checkbox isChecked={approval.approval || approval.approval === 'true'} size='sm' colorScheme='green' borderColor='blue.400' id={props.id} onChange={(e)=>{sendApproval(e)}}></Checkbox>:<Checkbox size='sm' colorScheme='green' borderColor='gray.400' isDisabled></Checkbox>}
+            </AvatarBadge>:<></>}
         </Avatar>
     </WrapItem>
   )

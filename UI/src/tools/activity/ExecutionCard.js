@@ -22,7 +22,7 @@ function ExecutionCard(props) {
     
     let date = new Date(props.execution.startTime);
     
-    const handleClick = () => {
+    const handleClick = async () => {
 
         const authProvider = AuthProvider()
         let config = {
@@ -31,15 +31,15 @@ function ExecutionCard(props) {
             }
         }
 
-        authProvider.authGet(`/activity/workflow/handle/?id=${props.execution.associatedFlow}&&ordering=title`, config)
+        await authProvider.authGet(`/activity/execution/handle/?id=${props.execution.id}`, config)
         .then(res => {
             console.log(res);
             console.log(res.data);
-            setExecution(props.execution)
+            setExecution(res.data[0])
             setWorkflow('generate_new_hash_here')
             navigate('/workflow', {
                 state: {
-                workflow: props.workflow
+                workflow: JSON.parse(res.data[0].jsonFlow)
                 }
             })
         })
@@ -65,11 +65,10 @@ function ExecutionCard(props) {
         .then(res =>{
             console.log(res);
             console.log(res.data);
-            navigate('/workflow-list')
+            navigate('/farm')
         })
         .catch(error => {
             console.log(error);
-            console.log(error.data);
         })
     }
 

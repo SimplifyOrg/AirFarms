@@ -12,10 +12,10 @@ export default (props) => {
 
   return (
     <aside>
-      {execution !== null?<></>:<><div className="description">You can drag these nodes to the pane on the left.</div>
+      {/* {execution !== null?<></>:<><div className="description">You can drag these nodes to the pane on the left.</div>
       <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'input')} draggable>
         Node
-      </div></>}
+      </div></>} */}
       <Roles saveWorkflow={props.saveWorkflow}/>
       {/* <div className="dndnode" onDragStart={(event) => onDragStart(event, 'default')} draggable>
         Default Node

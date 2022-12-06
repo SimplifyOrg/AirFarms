@@ -6,6 +6,9 @@ import ReactFlow, {
   useEdgesState,
   Controls,
   Background,
+  isNode,
+  isEdge,
+  getConnectedEdges
 } from 'react-flow-renderer';
 import Sidebar from './Sidebar';
 import './css/workflow.css'
@@ -19,7 +22,9 @@ import ExecutionContext from '../../utils/ExecutionContext';
 // import FarmContext from '../../utils/FarmContext';
 import NodeContext from '../../utils/NodeContext';
 import useWorflow from './useWorflow';
-import {useColorModeValue} from '@chakra-ui/react'
+import {useColorModeValue, useDisclosure} from '@chakra-ui/react'
+import { AuthProvider } from '../../utils/AuthProvider';
+import ConfirmationDialog from '../../components/ConfirmationDialog';
 
 function WorkflowDiagram(props) {
     
@@ -31,8 +36,12 @@ function WorkflowDiagram(props) {
     const {farm} = useContext(FarmContext)
     const nodeTypes = useMemo(() => ({ workflowNode: WorkflowNode }), []);
     const edgeTypes = useMemo(() => ({ buttonedge: ButtonEdge }), []);
-    
-    
+
+    const { isOpen, onOpen, onClose } = useDisclosure()
+    const [confirm, SetConfirm] = useState({open:false, handleOk: null, handleCancel: null, ok: 'Yes', cancel: 'No', title: 'Confirm', body: 'Are you sure?', isOpen: isOpen, onOpen: onOpen, onClose: onClose})
+    const [deleteNodes, SetDeleteNodes] = useState([])
+    const [deleteEdges, SetDeleteEdges] = useState([])
+
     const initialNodes = [] //;
     const initialEdges = [] //workflowObj.edges;
 
@@ -195,8 +204,6 @@ function WorkflowDiagram(props) {
         {
             currWorkflow.nodes.push(nodeObj)
             localStorage.setItem(workflow, JSON.stringify(currWorkflow));
-            saveWorkflow();
-            // setWorkflow(JSON.stringify(currWorkflow))
         }
     }
 
@@ -211,7 +218,6 @@ function WorkflowDiagram(props) {
             currWorkflow.edges.push(edgeObj)
             localStorage.setItem(workflow, JSON.stringify(currWorkflow));
             saveWorkflow();
-            // setWorkflow(JSON.stringify(currWorkflow))
         }
     }
 
@@ -221,7 +227,12 @@ function WorkflowDiagram(props) {
             if(node.nodes?.length === 1)
             {
                 setNode(node.nodes[0])
-            }            
+            }
+
+            if(node.nodes.length > 0)
+            {
+                SetDeleteNodes(node.nodes)
+            }
         }, []
     );
 
@@ -267,9 +278,7 @@ function WorkflowDiagram(props) {
                 {
                     currWorkflow.nodes[nodeIndex].position = { ...node.position };
                     localStorage.setItem(workflow, JSON.stringify(currWorkflow));
-                    // saveWorkflow();
-                }
-                
+                }                
             }
             return n;
           })
@@ -277,63 +286,255 @@ function WorkflowDiagram(props) {
 
       };
 
-    // const onConnectStart = useCallback((_, { nodeId }) => {
-    //     connectingNodeId.current = nodeId;
-    // }, []);
+    const onConnectStart = useCallback((_, { nodeId }) => {
+        connectingNodeId.current = nodeId;
+    }, []);
 
-    // const onConnectEnd = useCallback(
-    //     (event) => {
-    //       const targetIsPane = event.target.classList.contains('react-flow__pane');
+    const onConnectEnd = useCallback(
+        (event) => {
+          const targetIsPane = event.target.classList.contains('react-flow__pane');
     
-    //       if (targetIsPane) {
-    //         const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-    //         // const type = event.dataTransfer.getData('application/reactflow');
+          if (targetIsPane) {
+            const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+            // const type = event.dataTransfer.getData('application/reactflow');
 
-    //         // // check if the dropped element is valid
-    //         // if (typeof type === 'undefined' || !type) {
-    //         //     return;
-    //         // }
+            // // check if the dropped element is valid
+            // if (typeof type === 'undefined' || !type) {
+            //     return;
+            // }
 
-    //         const position = reactFlowInstance.project({
-    //             x: event.clientX - reactFlowBounds.left,
-    //             y: event.clientY - reactFlowBounds.top,
-    //         });
-    //         // const nodeId = getId()
-    //         let currWorkflow = JSON.parse(localStorage.getItem(workflow));
-    //         const nodeId = `dndnode_${currWorkflow.nodes.length}`
-    //         const newNode = {
-    //             id: nodeId,
-    //             type: 'workflowNode',
-    //             position,
-    //             data: { 
-    //                 label: `${type} node`,
-    //                 title: `${type} node`,
-    //                 notifiers: [user.data.id],
-    //                 notes: "",
-    //                 works: []
-    //             },
-    //         };
-    //         addNode(newNode)
+            // const position = reactFlowInstance.project({
+            //     x: event.clientX - reactFlowBounds.left,
+            //     y: event.clientY - reactFlowBounds.top,
+            // });
+            const position = {
+                x: event.clientX - reactFlowBounds.left,
+                y: event.clientY - reactFlowBounds.top,
+            }
+            // const nodeId = getId()
+            let currWorkflow = JSON.parse(localStorage.getItem(workflow));
+            const nodeId = `dndnode_${currWorkflow.nodes.length}`
+            const newNode = {
+                id: nodeId,
+                type: 'workflowNode',
+                position,
+                data: { 
+                    label: `New node`,
+                    title: `New node`,
+                    notifiers: [user.data.id],
+                    notes: "",
+                    works: []
+                },
+            };
+            addNode(newNode)
 
-    //         setNodes((nds) => nds.concat(newNode));
-    //         setEdges((eds) => eds.concat({ source: connectingNodeId.current, target: nodeId }));
-    //         // we need to remove the wrapper bounds, in order to get the correct position
-    //         // const { top, left } = reactFlowWrapper.current.getBoundingClientRect();
-    //         // const id = getId();
-    //         // const newNode = {
-    //         //   id,
-    //         //   // we are removing the half of the node width (75) to center the new node
-    //         //   position: project({ x: event.clientX - left - 75, y: event.clientY - top }),
-    //         //   data: { label: `Node ${id}` },
-    //         // };
+            setNodes((nds) => nds.concat(newNode));
+            onConnect({animated: true, source: connectingNodeId.current, sourceHandle: 'a', target: nodeId, targetHandle: null})
+            // setEdges((eds) => eds.concat({ source: connectingNodeId.current, target: nodeId }));
+            // we need to remove the wrapper bounds, in order to get the correct position
+            // const { top, left } = reactFlowWrapper.current.getBoundingClientRect();
+            // const id = getId();
+            // const newNode = {
+            //   id,
+            //   // we are removing the half of the node width (75) to center the new node
+            //   position: project({ x: event.clientX - left - 75, y: event.clientY - top }),
+            //   data: { label: `Node ${id}` },
+            // };
     
-    //         // setNodes((nds) => nds.concat(newNode));
-    //         // setEdges((eds) => eds.concat({ id, source: connectingNodeId.current, target: id }));
-    //       }
-    //     },
-    //     []
-    // );
+            // setNodes((nds) => nds.concat(newNode));
+            // setEdges((eds) => eds.concat({ id, source: connectingNodeId.current, target: id }));
+          }
+        },
+        []
+    );
 
+    
+    // const removeWorkFromDB = (works) => {
+    //     let config = {
+    //         headers: {
+    //             'Accept': 'application/json'
+    //         }
+    //     }
+    //     const authProvider = AuthProvider()
+        
+    //     works.forEach(element => {
+
+    //         authProvider.authDelete(`/activity/work/handle/${element.id}/`, config)
+    //         .then(res => {
+                
+    //         })
+    //         .catch(error => {
+    //             console.log(error);
+    //         })
+            
+    //     });
+    // }
+    
+    const removeNodefromDB = (node) => {
+
+        // removeWorkFromDB(node.data.works)
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+        const authProvider = AuthProvider()
+        authProvider.authDelete(`/activity/state/handle/${node.id}/`, config)
+        .then(res => {
+                      
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
+    const removeEdgefromDB = (edge) => {
+        // removeTransitionApprovalsFromDB(node.data.works)
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+        const authProvider = AuthProvider()
+        authProvider.authDelete(`/activity/transition/handle/${edge.id}/`, config)
+        .then(res => {
+                      
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+    
+    const removeNode = async (node) => {
+        
+        let currWorkflow = JSON.parse(localStorage.getItem(workflow));
+
+        for( let i = 0; i < currWorkflow.nodes.length; ++i)
+        {
+            if ( currWorkflow.nodes[i].id === node.id)
+            {
+                currWorkflow.nodes.splice(i, 1);
+                removeNodefromDB(node);
+                localStorage.setItem(workflow, JSON.stringify(currWorkflow));
+                saveWorkflow();
+                break;
+            }        
+        }    
+    }
+
+    const removeEdge = async (edge) => {
+        
+        let currWorkflow = JSON.parse(localStorage.getItem(workflow));
+
+        for( let i = 0; i < currWorkflow.edges.length; ++i)
+        {     
+            if ( currWorkflow.edges[i].id === edge.id) 
+            {         
+                currWorkflow.edges.splice(i, 1);
+                removeEdgefromDB(edge);
+                localStorage.setItem(workflow, JSON.stringify(currWorkflow));
+                saveWorkflow();
+                break;
+            }        
+        }
+    }
+
+    const initiateNodeDelete = useCallback ((nodes) => {
+        if(execution === null)
+        {
+            nodes.forEach(element => {
+                if(isNode(element))
+                {
+                    removeNode(element)
+                }
+            });
+        }        
+    }, [])
+
+    const handleCancel = useCallback (async () => {
+        saveWorkflow();
+        SetDeleteNodes([])
+        SetDeleteEdges([])
+        localStorage.setItem('deleteNodes', JSON.stringify({'nodes': []}));
+        localStorage.setItem('deleteEdges', JSON.stringify({'edges': []}));
+        // Close confirmation dialog
+        SetConfirm({open:confirm.open, handleOk: confirm.handleOk, handleCancel:confirm.handleCancel, ok: confirm.ok, cancel: confirm.cancel, title: confirm.title, body: confirm.body, isOpen: false, onOpen: confirm.onOpen, onClose: confirm.onClose})
+    }, [])
+
+    const handleOk = useCallback ( async () => {
+
+        if((deleteNodes.length > 0 && isNode(deleteNodes[0]))||(node !== null && isNode(node)))
+        {
+            let currWorkflow = JSON.parse(localStorage.getItem(workflow));
+            const connectedEdges = getConnectedEdges(deleteNodes, currWorkflow.edges)
+            initiateNodeDelete(deleteNodes);
+            initiateEdgeDelete(connectedEdges);
+        }
+        else
+        {
+            let nodesJson = JSON.parse(localStorage.getItem('deleteNodes'));
+            const nodes = nodesJson.nodes;
+            if(nodes.length > 0 && isNode(nodes[0]))
+            {
+                let currWorkflow = JSON.parse(localStorage.getItem(workflow));
+                const connectedEdges = getConnectedEdges(nodes, currWorkflow.edges)
+                initiateNodeDelete(nodes);
+                initiateEdgeDelete(connectedEdges);
+            }
+        }
+
+        // Close confirmation dialog
+        SetConfirm({open:confirm.open, handleOk: confirm.handleOk, handleCancel:confirm.handleCancel, ok: confirm.ok, cancel: confirm.cancel, title: confirm.title, body: confirm.body, isOpen: false, onOpen: confirm.onOpen, onClose: confirm.onClose})
+        
+    }, [])
+    
+    const onWorkNodeDelete = useCallback( async(nodes) => {     
+        if(execution === null)
+        {
+            if(!confirm.isOpen)
+            {   
+                // Open confirmation dialog
+                SetConfirm({open:true, handleOk:handleOk, handleCancel:handleCancel, ok: 'Yes', cancel: 'No', title: 'Confirm', body: `Are you sure, you want to delete ${nodes.length} nodes?`, isOpen: true, onOpen: onOpen, onClose: onClose})
+                SetDeleteNodes(nodes)
+                localStorage.setItem('deleteNodes', JSON.stringify({'nodes': nodes}));
+            }
+        }
+        else
+        {
+            handleCancel()
+        }        
+    },[])
+
+    const initiateEdgeDelete = useCallback ((edges) => {
+        if(execution === null)
+        {
+            edges.forEach(element => {
+                if(isEdge(element))
+                {
+                    removeEdge(element)
+                }
+            });
+        }        
+    }, [])
+
+    const onButtonEdgeDelete = useCallback(async (edges) => {
+        if(execution === null)
+        {
+            if(!confirm.isOpen)
+            {
+                // Open confirmation dialog
+                SetConfirm({open:true, handleOk:handleOk, handleCancel:handleCancel, ok: 'Yes', cancel: 'No', title: 'Confirm', body: `Are you sure, you want to delete ${edges.length} edges?`, isOpen: true, onOpen: onOpen, onClose: onClose})
+                SetDeleteEdges(edges)
+                localStorage.setItem('deleteEdges', JSON.stringify({'edges': edges}));
+            }           
+        }
+        else
+        {
+            handleCancel()
+        }
+        
+    },[])
+    
     const onDrop = useCallback(
         (event) => {
             event.preventDefault();
@@ -350,6 +551,7 @@ function WorkflowDiagram(props) {
                 x: event.clientX - reactFlowBounds.left,
                 y: event.clientY - reactFlowBounds.top,
             });
+            let del = execution === null? true: false
             // const nodeId = getId()
             let currWorkflow = JSON.parse(localStorage.getItem(workflow));
             const nodeId = `dndnode_${currWorkflow.nodes.length}`
@@ -357,6 +559,7 @@ function WorkflowDiagram(props) {
                 id: nodeId,
                 type: 'workflowNode',
                 position,
+                deletable: del,
                 data: { 
                     label: `${type} node`,
                     title: `${type} node`,
@@ -375,6 +578,7 @@ function WorkflowDiagram(props) {
 
   return (
     <div className="workflow">
+        <ConfirmationDialog handleOk={handleOk} handleCancel={handleCancel} ok={confirm.ok} cancel={confirm.cancel} title={confirm.title} data={confirm.data} body={confirm.body} isOpen={confirm.isOpen} onOpen={confirm.onOpen} onClose={confirm.onClose}/>
       <ReactFlowProvider>
         <div className="reactflow-wrapper" ref={reactFlowWrapper}>
           <ReactFlow
@@ -382,10 +586,12 @@ function WorkflowDiagram(props) {
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
+            onNodesDelete={onWorkNodeDelete}
+            onEdgesDelete={onButtonEdgeDelete}
             onConnect={onConnect}
             nodesConnectable={execution === null? true : false}
-            // onConnectStart={onConnectStart}
-            // onConnectEnd={onConnectEnd}
+            onConnectStart={onConnectStart}
+            onConnectEnd={onConnectEnd}
             onInit={SetReactFlowInstance}
             onDrop={onDrop}
             onDragOver={onDragOver}

@@ -123,7 +123,7 @@ function ExecutionComp({maxWidth}) {
 
         for(let j = 0; j < workflowList.length; ++j)
         {
-            authProvider.authGet(`/activity/execution/handle/?associatedFlow=${workflowList[j].workflow.id}&&ordering=startTime`, config)
+            authProvider.authGet(`/activity/execution/handle/?associatedFlow=${workflowList[j].workflow.id}&&has_finished=${false}&&ordering=-startTime`, config)
             .then(res => {
                 console.log(res);
                 console.log(res.data);
@@ -145,7 +145,7 @@ function ExecutionComp({maxWidth}) {
                 borderWidth="2px"
                 borderRadius="lg"
                 overflowY="auto"
-                marginBlock={1}                
+                mt={1}                
                 css={{
                     '&::-webkit-scrollbar': {
                         width: '4px',

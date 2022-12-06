@@ -70,11 +70,11 @@ function Execution({onNewExecution}) {
             }
         }
 
-        if(startState !== -1 )
+        if(startState !== -1 && startState !== null)
         {
             let body = {
                 associatedFlow: parseInt(values.workflow),
-                currentState: [startState],
+                currentStates: [startState],
                 initiater: user.data.id
             }
 

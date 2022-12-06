@@ -16,13 +16,8 @@ import {
     HStack,
  } from '@chakra-ui/react';
 import { ChevronDownIcon, ArrowRightIcon } from '@chakra-ui/icons'
-import { AuthProvider } from '../../utils/AuthProvider';
 import './css/edgeButton.css';
 import Transition from './Transition';
-import WorkflowContext from '../../utils/WorkflowContext';
-import FarmContext from '../../utils/FarmContext';
-import JsonFlowContext from '../../utils/JsonFlowContext';
-import ExecutionContext from '../../utils/ExecutionContext';
 
 const foreignObjectSize = 70;
 
@@ -98,10 +93,6 @@ export default function CustomEdge({
     // const [approverusers, SetApproveruser] = useState(new Set())
     const [approvers, SetApprovers] = useState(initialApprovers)
     const [boxColor, SetBoxColor] = useState('green')
-    const {workflow} = useContext(WorkflowContext)
-    const {farm} = useContext(FarmContext)
-    const {execution, setExecution} = useContext(ExecutionContext)
-    const {jsonFlow, setJsonFlow} = useContext(JsonFlowContext)
 
     const addApprover = useCallback((user) => {
         
@@ -118,99 +109,6 @@ export default function CustomEdge({
         }
     }, [approvers]);
 
-    const updateWorkflowStates = (authProvider, exec, config) => {
-        
-        authProvider.authPut(`/activity/execution/handle/${exec.id}/`, exec, config)
-        .then(res => {
-            console.log(res);
-            console.log(res.data);                      
-        })
-        .catch(error => {
-            console.log(error);
-            console.log(error.data);
-        })
-    }
-
-    const patchExecution = (exec) => {
-        let config = {
-            headers: {
-                'Accept': 'application/json'
-            }
-        }
-        const authProvider = AuthProvider()
-        authProvider.authGet(`/activity/execution/handle/?id=${exec.id}`, config)
-        .then(getWorkflow => {
-            if(getWorkflow.data.length !== 0)
-            {
-                // Update workflow states
-                updateWorkflowStates(authProvider, exec, config)
-            }
-        })
-        .catch(errorGetWorkflow => {
-            console.log(errorGetWorkflow);
-            console.log(errorGetWorkflow.data);
-        })
-    }
-
-    const moveState = () => {
-        // Things to check before moving state
-        // 1. If all the transition approvals approved
-        // 2. If all the mandatory works completed
-
-        // Get workflow JSON object
-        let workflowObj = JSON.parse(localStorage.getItem(workflow))
-
-        let move = true;
-        // TODO: optimize this
-        for(let i = 0; i < workflowObj.nodes?.length; ++i)
-        {
-            for(let j = 0; workflowObj.nodes[i].id === inputEdge.source && j < workflowObj.nodes[i].data.works?.length; ++j)
-            {
-                if(!workflowObj.nodes[i].data.works[j].has_finished 
-                    || workflowObj.nodes[i].data.works[j].is_halted === 'true')
-                    {
-                        move = false;
-                        // TODO: show information banner
-                        break;
-                    }
-            }
-        }
-
-        // TODO: optimize this
-        for(let i = 0; move && i < workflowObj.edges?.length; ++i)
-        {
-            for(let j = 0; workflowObj.edges[i].id === inputEdge.id && j < workflowObj.edges[i].data?.transition?.transitionapprovals?.length; ++j)
-            {
-                if(!workflowObj.edges[i].data?.transition.transitionapprovals[j].approval 
-                    || workflowObj.edges[i].data?.transition.transitionapprovals[j].reject)
-                    {
-                        move = false;
-                        // TODO: show information banner
-                        break;
-                    }
-            }
-        }
-
-        // Way to move state is
-        // Add the next state in current states
-        // Remove prev state from current state.
-
-        if(move && execution !== null)
-        {
-            let exec = execution;
-            for(let k = 0; k < exec.currentStates; ++k)
-            {
-                if(exec.currentStates[k] === data.transition.previous)
-                {
-                    exec.currentStates[k] = data.transition.next;
-                    break;
-                }
-            }
-            setExecution(exec)
-            patchExecution(exec)
-        }
-
-    }
 
     useEffect(() => {
         // console.log(approvers)
@@ -268,7 +166,6 @@ export default function CustomEdge({
                     </PopoverContent>
                 </Portal>
             </Popover>
-            {execution === null?<></>:<IconButton variant='outline' size='2xs' onClick={() => moveState()} icon={<ArrowRightIcon boxSize={1.5}/>}/>}
             </HStack> 
         
           </body>

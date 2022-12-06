@@ -2,23 +2,26 @@ import React, {useContext, useCallback, useState, useEffect} from 'react'
 import EditableComponent from '../../components/EditableComponent'
 import NodeContext from '../../utils/NodeContext';
 import WorkflowContext from '../../utils/WorkflowContext';
+import ExecutionContext from '../../utils/ExecutionContext';
 import {
     Box,
     Stack,
     Heading,
     Avatar,
-    AvatarGroup
+    AvatarGroup,
+    Text
 } from '@chakra-ui/react'
 import Assignee from './Assignee';
 import { AuthProvider } from '../../utils/AuthProvider';
 import UserContext from '../../utils/UserContext';
+import DurationEdit from './DurationEdit';
+import Timer from '../../components/Timer';
 
 function WorkUpdate({onChange, work, addAssigneeInNode}) {
 
-    const { node } = useContext(NodeContext);
-    const { workflow } = useContext(WorkflowContext);
+
     const {user} = useContext(UserContext)
-    let notifierSet = new Set()
+    const {execution} = useContext(ExecutionContext)
 
     const [notifiers, SetNotifiers] = useState(new Map())
     const addNotifiersInMap = (key, value) => {
@@ -121,11 +124,12 @@ function WorkUpdate({onChange, work, addAssigneeInNode}) {
             <Box p={6}>
                 <Stack spacing={0} align={'center'} mb={5}>
                     <Heading fontSize={'2xl'} fontWeight={500} fontFamily={'body'}>
-                        <EditableComponent color={'gray.500'} defaultValue={work.title} updateTitle={updateWorkTitle}/>
+                        {execution === null? <EditableComponent color={'gray.500'} defaultValue={work.title} updateTitle={updateWorkTitle}/>:<Text>{work.title}</Text>}
                     </Heading>
-                    <EditableComponent color={'gray.500'} defaultValue={work.notes} updateTitle={updateDescription}/>
-                    <Assignee addAssigneeInWork={addAssignee}/>
+                    {execution === null?<EditableComponent color={'gray.500'} defaultValue={work.notes} updateTitle={updateDescription}/>:<Text>{work.notes}</Text>}
+                    {execution === null?<Assignee addAssigneeInWork={addAssignee}/>: <></>}
                 </Stack>
+                {execution === null?<DurationEdit onChange={onChange} work={work}/>: <Timer deadline={new Date(work.completion_date)}/>}
                 <AvatarGroup size='md'>
                 {
                     assignees.size === 0 ? <></>: [...assignees].map((assignee, idx) => {

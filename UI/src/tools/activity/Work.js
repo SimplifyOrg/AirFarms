@@ -2,7 +2,7 @@ import React, {useContext, useState, useCallback} from 'react'
 import FormikControl from '../../components/FormikControl';
 import {Form, Formik} from 'formik'
 import * as Yup from 'yup'
-import { HStack, Button, Box, useColorModeValue } from '@chakra-ui/react';
+import { HStack, Button, Box, useColorModeValue, VStack } from '@chakra-ui/react';
 import UserContext from '../../utils/UserContext'
 import WorkflowContext from '../../utils/WorkflowContext'
 import NodeContext from '../../utils/NodeContext';
@@ -141,9 +141,7 @@ function Work(props) {
                 console.log(error);
                 console.log(error.data);
             })
-        }
-
-        
+        }        
     }
 
     const onSubmit = async (values, onSubmitProps) => {
@@ -190,9 +188,7 @@ function Work(props) {
             notifiers: notoif,
             notes: values.notes,
             associatedState: node?.id,
-            completion_date: "",
-            has_finished: "false",
-            is_halted: "false"
+            duration: `${values.days > 9 ? values.days : '0' + values.days}:${values.hours > 9 ? values.hours : '0' + values.hours}:${values.minutes > 9 ? values.minutes : '0' + values.minutes}:00`
         }
 
         sendNotification(ass, notoif)
@@ -217,11 +213,16 @@ function Work(props) {
 
     const initialValues = {
         title: props.initial? props.initial.title:'',
-        notes: props.initial? props.initial.notes:''
+        notes: props.initial? props.initial.notes:'',
+        days: 5,
+        hours: 0,
+        minutes: 0,
+        seconds: 0
     }
 
   return (
         <Box bg={useColorModeValue('whiteAlpha.700','gray.700')} maxW='sm' borderWidth='1px' borderRadius='lg' overflow='hidden'>
+            <Assignee addAssigneeInWork={addAssignee}/>
             <Formik
                 initialValues={initialValues}
                 onSubmit={onSubmit}
@@ -230,39 +231,76 @@ function Work(props) {
                 console.log(formik)
                 return (
                     <Form>
-                        <HStack> 
-                            <FormikControl
-                                control='chakraInput'
-                                type='text'
-                                label='Title'
-                                name='title'
-                                required
-                                color="orange.400"
-                                placeholder="Title"
-                            />                                          
-                            <FormikControl
-                                control='chakraTextArea'
-                                type='text'
-                                label='Notes'
-                                name='notes'
-                                required
-                                color="orange.400"
-                                placeholder="Describe the work..."
-                            />
-                            <Button 
-                                type='submit' 
-                                disabled={!formik.isValid}
-                                width="half"
-                                color="orange.400"
-                            >
-                                Create
-                            </Button>
-                        </HStack>
+                        <VStack>
+                            <HStack> 
+                                <FormikControl
+                                    control='chakraInput'
+                                    type='text'
+                                    label='Title'
+                                    name='title'
+                                    required
+                                    color="orange.400"
+                                    placeholder="Title"
+                                />
+                                <FormikControl
+                                    control='chakraTextArea'
+                                    type='text'
+                                    label='Notes'
+                                    name='notes'
+                                    required
+                                    color="orange.400"
+                                    placeholder="Describe the work..."
+                                />
+                            </HStack>
+                            <HStack>
+                                <FormikControl
+                                    control='chakraNumberInput'
+                                    label='Days'
+                                    name='days'
+                                    color="orange.400"
+                                    size='sm'
+                                    allowMouseWheel
+                                    defaultValue={5}
+                                    minValue={0}
+                                    maxValue={29}
+                                />
+                                <FormikControl
+                                    control='chakraNumberInput'
+                                    label='Hours'
+                                    name='hours'
+                                    color="orange.400"
+                                    size='sm'
+                                    allowMouseWheel
+                                    defaultValue={0}
+                                    minValue={0}
+                                    maxValue={23}
+                                />
+                                <FormikControl
+                                    control='chakraNumberInput'
+                                    label='Minutes'
+                                    name='minutes'
+                                    color="orange.400"
+                                    size='sm'
+                                    allowMouseWheel
+                                    defaultValue={0}
+                                    minValue={0}
+                                    maxValue={59}
+                                />  
+
+                            </HStack>
+                        </VStack>
+                        <Button 
+                            type='submit' 
+                            disabled={!formik.isValid}
+                            width="half"
+                            color="orange.400"
+                        >
+                            Create
+                        </Button>
                     </Form>
                 )
             }}            
             </Formik>
-            <Assignee addAssigneeInWork={addAssignee}/>
         </Box>
   )
 }

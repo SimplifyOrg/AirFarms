@@ -1,13 +1,10 @@
 import React, {useState, useEffect, useContext} from 'react'
-import { BellIcon } from '@chakra-ui/icons'
-import {IconButton} from '@chakra-ui/button'
 import UserContext from '../utils/UserContext'
 import {
     Menu,
     MenuButton,
     MenuList,
     MenuItem,
-    Button
   } from '@chakra-ui/react'
 
 import NotificationBadge from '../components/notifications/NotificationBadge'
@@ -29,8 +26,6 @@ function Notifications() {
             // const websocketLink = `ws://127.0.0.1:8000/messaging/notification/${user.data.id}`
             const webSock = new WebSocket(websocketLink)
             SetWebsocket(webSock)
-
-
             webSock.onopen = () => {
                 // on connecting, do nothing but log it to the console
                 console.log('connected')
@@ -46,14 +41,13 @@ function Notifications() {
                     {
                         initNotifications.add(messages[i].id)
                         initialNotifications.push(messages[i])
-                    }                    
+                    }
                 }
                 SetNotifications(initialNotifications.slice())
                 console.log(message)
             }
 
             webSock.onerror = function(error) {
-                //alert(`[error] ${error.message}`);
                 console.log(error)
             }
 
@@ -74,7 +68,8 @@ function Notifications() {
             {notifications.length === 0 ? <></>:
                 <MenuList>
                 {
-                    Array.from(notifications).map((notificationBody, idx) => {
+                    // Array.from(notifications).map((notificationBody, idx) => {
+                    (Array.from(notifications.values()).sort(function(a, b){return b.id - a.id})).map((notificationBody, idx) => {
                     return(
                         <MenuItem>
                             <NotificationItem key={idx} notificationBody={notificationBody}/>

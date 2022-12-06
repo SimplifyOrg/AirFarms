@@ -30,7 +30,7 @@ function Workflow() {
         if(location?.state?.workflow !== null && location?.state?.workflow !== undefined)
         {
             inComingWorkflow = location?.state?.workflow;
-            if(location.state.execution !== null)
+            if(location.state.execution !== null || location.state.execution !== undefined)
             {
                 SetExecution(location.state.execution)
             }
@@ -124,10 +124,10 @@ function Workflow() {
                     <BreadcrumbLink as={Link} to='/farms'>Farms</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbItem isCurrentPage>
-                    <BreadcrumbLink as={Link} to='/workflow-list'>Workflows</BreadcrumbLink>
+                    <BreadcrumbLink as={Link} to='/farm'>{farm === undefined || farm === '' || farm === null? 'Farm':farm.name}</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbItem isCurrentPage>
-                    <BreadcrumbLink as={Link} to='/workflow'>{currworkflow === undefined || currworkflow === ''? 'New workflow':currworkflow.workflow.title}</BreadcrumbLink>
+                    <BreadcrumbLink as={Link} to='/workflow'>{currworkflow === undefined || currworkflow === '' || currworkflow === null? 'New workflow':currworkflow.workflow.title}</BreadcrumbLink>
                 </BreadcrumbItem>
             </Breadcrumb>
             <Box 
@@ -140,7 +140,7 @@ function Workflow() {
             borderRadius="lg"
             ml='2'
             mr='2'
-            > 
+            >
                 <WorkflowDiagram workflow={currworkflow}/>
             </Box>
         </NavBar>

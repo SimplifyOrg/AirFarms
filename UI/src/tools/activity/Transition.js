@@ -11,6 +11,7 @@ import Approver from './Approver';
 import { AuthProvider } from '../../utils/AuthProvider';
 import { useReactFlow } from 'react-flow-renderer';
 import useWorflow from './useWorflow';
+import useNotification from '../../utils/useNotification';
 
 
 function Transition(props) {
@@ -28,6 +29,7 @@ function Transition(props) {
     const [approvers, SetApprovers] = useState(initialApprovers)
     const reactFlowInstance = useReactFlow();
     const {saveWorkflow} = useWorflow(farm, user, reactFlowInstance.setNodes, reactFlowInstance.setEdges)
+    const {sendNotification} = useNotification()
 
     const getTransitionId = () => {
         SetTransitionid(transitionid+1)
@@ -63,71 +65,53 @@ function Transition(props) {
         // These will appear in the drop down on the edge
         if(farm !== null)
         {
-        authProvider.authGet(`/farm/perform/group/?farm=${farm.id}`, config)
-        .then(resPic =>{
-            console.log(resPic);
-            console.log(resPic.data);
-            //TODO: optimize: probably fetch user and all farm related
-            //      details at farm load.
-            for(let i = 0; i < resPic.data.length; ++i)
-            {
-                let farmName = farm.name.toLowerCase() +'_group'
-                let groupName = (resPic.data[i].name).toLowerCase() 
-                if(farmName === groupName)
+            authProvider.authGet(`/farm/perform/group/?farm=${farm.id}`, config)
+            .then(resPic =>{
+                console.log(resPic);
+                console.log(resPic.data);
+                //TODO: optimize: probably fetch user and all farm related
+                //      details at farm load.
+                for(let i = 0; i < resPic.data.length; ++i)
                 {
-                    const groupId = resPic.data[i].id
-                    authProvider.authGet(`/account/user/?groups=${groupId}`, config)
-                    .then(res =>{
-                        console.log(res);
-                        console.log(res.data);
-                        for(let j = 0; j < res.data.length; ++j)
-                        {
-                            if(!initSet.has(res.data[j].id))
+                    let farmName = farm.name.toLowerCase() + '_' + farm.description.toLowerCase() + '_group'
+                    let groupName = (resPic.data[i].name).toLowerCase()
+                    if(farmName === groupName)
+                    {
+                        const groupId = resPic.data[i].id
+                        authProvider.authGet(`/account/user/?groups=${groupId}`, config)
+                        .then(res =>{
+                            console.log(res);
+                            console.log(res.data);
+                            for(let j = 0; j < res.data.length; ++j)
                             {
-                                initSet.add(res.data[j].id)
-                                initialApprovers.push(res.data[j])
-                            }                            
-                        }
-                        SetApprovers(initialApprovers.slice())
-                    })
-                    .catch(error => {
-                        console.log(error);
-                        console.log(error.data);
-                    })
-                    break;
+                                if(!initSet.has(res.data[j].id))
+                                {
+                                    initSet.add(res.data[j].id)
+                                    initialApprovers.push(res.data[j])
+                                }
+                            }
+                            SetApprovers(initialApprovers.slice())
+                        })
+                        .catch(error => {
+                            console.log(error);
+                        })
+                        break;
+                    }
                 }
-            }
-        })
-        .catch(errorPic => {
-            console.log(errorPic);
-            console.log(errorPic.data);
-        })
+            })
+            .catch(errorPic => {
+                console.log(errorPic);
+            })
         }
     }, [])
 
-    const sendNotification = (transitionApproval) => {
-        const authProvider = AuthProvider()
-        let config = {
-            headers: {
-                'Accept': 'application/json'
-            }
+    const notify = (transitionApproval, transition) => {
+        const data = {
+            workflow: JSON.parse(localStorage.getItem(workflow)),
+            transitionApproval : transitionApproval,
+            transition : transition
         }
-
-        const body = {
-            sender: user.data.id,
-            receiver: transitionApproval.approver,
-            notification_type: '1'
-        }
-
-        authProvider.authPost(`/notification/data/handle/`, body, config, false)
-        .then(res =>{
-            console.log(res);
-            console.log(res.data);
-        })
-        .catch(error => {
-            console.log(error);
-            console.log(error.data);
-        })
+        sendNotification(user.data.id, transitionApproval.approver, '1', data)
     }
 
     const addTransitionApproval = (transitionApproval) => {
@@ -159,7 +143,7 @@ function Transition(props) {
             // SetAppovals(currWorkflow.edges[edgeIndex].data.transition.transitionapprovals)
             SetAppovals(initialApprovals.slice())
             localStorage.setItem(workflow, JSON.stringify(currWorkflow));
-            sendNotification(transitionApproval)
+            notify(transitionApproval, currWorkflow.edges[edgeIndex].data.transition)
             saveWorkflow()
             // setWorkflow(JSON.stringify(currWorkflow))
         }
