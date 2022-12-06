@@ -179,6 +179,22 @@ export const AuthProvider = () => {
         return axios.get(location, init)      
     };
 
+    const authDelete = async (url, init) => {       
+        
+        init = init || {};
+        await fetchValidToken();
+        const token = await tokenProvider.getToken();
+        // let domain = `http://127.0.0.1:8000`;
+        let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
+        let location = domain.concat("", url);
+        init.headers = {
+            ...init.headers,
+            Authorization: `Bearer ${token.accessToken}`,
+        };
+        
+        return axios.delete(location, init)      
+    };
+
     const useAuth = () => {
         const [isLogged, setIsLogged] = useState(tokenProvider.isLoggedIn());
     
@@ -202,6 +218,7 @@ export const AuthProvider = () => {
         authPatch,
         authGet,
         authPut,
+        authDelete,
         login,
         logout
     };
