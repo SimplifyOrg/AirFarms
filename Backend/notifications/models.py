@@ -17,6 +17,7 @@ class NotificationData(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name = 'sender', null=True)
     date = models.DateTimeField(default=timezone.now)
     user_has_seen = models.BooleanField(default=False)
+    data = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return str(self.receiver)
