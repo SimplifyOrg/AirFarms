@@ -38,8 +38,6 @@ class Transition(models.Model):
 class TransitionApproval(models.Model):
     transitionToApprove = ForeignKey(Transition, on_delete=models.CASCADE)
     approver = ForeignKey(User, on_delete=models.CASCADE)
-    approval = models.BooleanField(default=False)
-    reject = models.BooleanField(default=False)
 
 class WorkGroups(FarmGroups):
     associatedFlow = ForeignKey(Workflow, on_delete=models.CASCADE)
@@ -49,10 +47,7 @@ class Work(DiscussionBoard):
     notifiers = ManyToManyField(User, blank=True, related_name='work_notifiers')
     notes = TextField(blank=True)
     associatedState = ForeignKey(State, on_delete=models.CASCADE)
-    completion_date = DateTimeField(default=return_date_time, blank=True)
-    start_date = DateTimeField(default=timezone.now)
-    has_finished = models.BooleanField(default=False)
-    is_halted = models.BooleanField(default=False)
+    duration = models.DurationField(default=timedelta(days=5, seconds=0, minutes=0, hours=0))
 
     def save(self, *args, **kwargs):
         #completion_date = self.associatedState.transition_date
@@ -76,3 +71,26 @@ class Execution(DiscussionBoard):
     has_finished = models.BooleanField(default=False)
     currentStates = ManyToManyField(State, blank=True)
     initiater = ForeignKey(User, on_delete=models.CASCADE)
+    jsonFlow = models.JSONField(null=True, blank=True)
+
+class ExecutionWork(Work):
+    associatedExecution = ForeignKey(Execution, on_delete=models.CASCADE)
+    completion_date = DateTimeField(default=return_date_time, blank=True)
+    start_date = DateTimeField(default=timezone.now)
+    has_finished = models.BooleanField(default=False)
+    is_halted = models.BooleanField(default=False)
+
+class ExecutionTransitionApproval(TransitionApproval):
+    associatedExecution = ForeignKey(Execution, on_delete=models.CASCADE)
+    approval = models.BooleanField(default=False)
+    reject = models.BooleanField(default=False)
+
+class ExecutionWorkDocuments(models.Model):
+    title = models.CharField(max_length=256, default='New file')
+    file = models.FileField(upload_to = 'files')
+    associatedExecutionWork = ForeignKey(ExecutionWork, on_delete=models.CASCADE)
+
+class WorkflowTrigger(models.Model):
+    workflowToTrigger = ForeignKey(Workflow, on_delete=models.CASCADE)
+    associatedState = ForeignKey(State, on_delete=models.CASCADE)
+    creationDate = DateTimeField(default=timezone.now)

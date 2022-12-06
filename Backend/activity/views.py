@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import permissions, viewsets, generics
-from .serializers import ExecutionSerializer, JSONWorkflowSerializer, WorkDocumentsSerializer, WorkGroupsSerializer, WorkflowSerializer, WorkSerializer, StateSerializer, TransitionSerializer, TransitionApprovalSerializer
-from .models import Execution, JSONWorkflow, WorkDocuments, WorkGroups, Workflow, Work, State, Transition, TransitionApproval
+from .serializers import ExecutionSerializer, ExecutionTransitionApprovalSerializer, ExecutionWorkDocumentsSerializer, ExecutionWorkSerializer, JSONWorkflowSerializer, WorkDocumentsSerializer, WorkGroupsSerializer, WorkflowSerializer, WorkSerializer, StateSerializer, TransitionSerializer, TransitionApprovalSerializer, WorkflowTriggerSerializer
+from .models import Execution, ExecutionTransitionApproval, ExecutionWork, ExecutionWorkDocuments, JSONWorkflow, WorkDocuments, WorkGroups, Workflow, Work, State, Transition, TransitionApproval, WorkflowTrigger
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 
@@ -23,7 +23,7 @@ class WorkViewSet(viewsets.ModelViewSet):
     queryset = Work.objects.all()
     serializer_class = WorkSerializer
     filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['id', 'assignee', 'completion_date', 'has_finished', 'is_halted']
+    filterset_fields = ['id', 'assignee', 'duration']
 
 class WorkDocumentsViewSet(viewsets.ModelViewSet):
     permission_classes = [
@@ -59,7 +59,7 @@ class TransitionApprovalViewSet(viewsets.ModelViewSet):
     queryset = TransitionApproval.objects.all()
     serializer_class = TransitionApprovalSerializer
     filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['id', 'approver', 'transitionToApprove', 'approval']
+    filterset_fields = ['id', 'approver', 'transitionToApprove']
 
 class JSONWorkflowViewSet(viewsets.ModelViewSet):
     permission_classes = [
@@ -90,3 +90,43 @@ class ExecutionViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend,OrderingFilter]
     filterset_fields = ['id', 'associatedFlow', 'startTime', 'endTime', 'has_finished']
     ordering_fields = ['id','associatedFlow', 'startTime', 'endTime']
+
+class ExecutionWorkViewSet(viewsets.ModelViewSet):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    queryset = ExecutionWork.objects.all()
+    serializer_class = ExecutionWorkSerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_fields = ['id', 'assignee', 'completion_date', 'has_finished', 'is_halted', 'associatedExecution']
+    ordering_fields = ['id','completion_date']
+
+class ExecutionTransitionApprovalViewSet(viewsets.ModelViewSet):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    queryset = ExecutionTransitionApproval.objects.all()
+    serializer_class = ExecutionTransitionApprovalSerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_fields = ['id', 'associatedExecution', 'approval', 'reject']
+    ordering_fields = ['id','associatedExecution']
+
+class ExecutionWorkDocumentsViewSet(viewsets.ModelViewSet):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    queryset = ExecutionWorkDocuments.objects.all()
+    serializer_class = ExecutionWorkDocumentsSerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_fields = ['id', 'associatedExecutionWork', 'title']
+    ordering_fields = ['id','associatedExecutionWork', 'title']
+
+class WorkflowTriggerViewSet(viewsets.ModelViewSet):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    queryset = WorkflowTrigger.objects.all()
+    serializer_class = WorkflowTriggerSerializer
+    filter_backends = [DjangoFilterBackend,OrderingFilter]
+    filterset_fields = ['id', 'workflowToTrigger', 'associatedState', 'creationDate']
+    ordering_fields = ['id','workflowToTrigger', 'associatedState', 'creationDate']

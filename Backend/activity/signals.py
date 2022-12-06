@@ -1,9 +1,10 @@
 from django.db.models.signals import post_save
 
 from account.models import User
-from .models import JSONWorkflow, State, Transition, TransitionApproval, Work, WorkGroups, Workflow
+from .models import Execution, ExecutionTransitionApproval, ExecutionWork, ExecutionWorkDocuments, JSONWorkflow, State, Transition, TransitionApproval, Work, WorkDocuments, WorkGroups, Workflow
 from django.dispatch import receiver
 import json
+from datetime import timedelta
 
 # this dictionary keep map of old node id to database id
 # this is needed to update source and target node id in
@@ -44,7 +45,7 @@ def CreateTransition(transition, workflowId):
 
 def CreateTransitionApproval(transitionApproval, tran):
     user = User.objects.get(id=transitionApproval['approver'])
-    approval = TransitionApproval.objects.create(transitionToApprove=tran, approver=user, approval=False, reject=False)
+    approval = TransitionApproval.objects.create(transitionToApprove=tran, approver=user)
     transitionApproval['id'] = int(approval.id)
     transitionApproval['transitionToApprove'] = int(tran.id)
 
@@ -84,8 +85,9 @@ def CreateWork(work, notifiers, state):
         if userId != None:
             workNotifiers.append(User.objects.get(id=userId))
     
+    timeString = work['duration'].split(':')
     # return created work object
-    newWork = Work.objects.create(notes=work['notes'], associatedState=state)
+    newWork = Work.objects.create(notes=work['notes'], associatedState=state, duration=timedelta(days=int(timeString[0]), seconds=int(timeString[3]), minutes=int(timeString[2]), hours=int(timeString[1])))
     work['associatedState'] = state.id
     
     if len(workOwners) > 0:
@@ -117,6 +119,10 @@ def UpdateWorkFinishedStatus(work):
 def UpdateWorkNotes(work):
     Work.objects.filter(id=work['id']).update(notes=work['notes'])
 
+def UpdateWorkDuration(work):
+    timeString = work['duration'].split(':')
+    Work.objects.filter(id=work['id']).update(duration=timedelta(days=int(timeString[0]), seconds=int(timeString[3]), minutes=int(timeString[2]), hours=int(timeString[1])))
+
 def UpdateWorkCompletionDate(work):
     if work['completion_date'] != '':
         Work.objects.filter(id=work['id']).update(completion_date=work['completion_date'])
@@ -134,12 +140,14 @@ def UpdateWork(work):
     UpdateWorkAssignees(work)
     #Update notes
     UpdateWorkNotes(work)
+    # Update duration
+    UpdateWorkDuration(work)
     #Update Completion date
-    UpdateWorkCompletionDate(work)
+    # UpdateWorkCompletionDate(work)
     #Update finished status
-    UpdateWorkFinishedStatus(work)
+    # UpdateWorkFinishedStatus(work)
     #Update halted status
-    UpdateWorkHaltedStatus(work)
+    # UpdateWorkHaltedStatus(work)
 
 def UpdateOrCreateWork(node):
     state = State.objects.get(id=node['id'])
@@ -165,17 +173,9 @@ def UpdateTransition(transition, flowId):
         try:
             approval = TransitionApproval.objects.get(id = transitionApproval['id'])
             if approval is not None:
-                approvalVal = False
-                if transitionApproval['approval'] == 'true':
-                    approvalVal = True
-                rejectVal = False
-                if transitionApproval['reject'] == 'true':
-                    rejectVal = True
                 #Update existing transition approval
                 TransitionApproval.objects.filter(id=transitionApproval['id']).update(transitionToApprove=tran,
-                                                                                    approver=int(transitionApproval['approver']),
-                                                                                    approval=approvalVal,
-                                                                                    reject=rejectVal
+                                                                                    approver=int(transitionApproval['approver'])
                                                                                     )
         except TransitionApproval.DoesNotExist:
             #Create new Transition approval
@@ -274,15 +274,102 @@ def JSONWorkflowHandler(sender, instance, created, **kwargs):
 
         except Exception as e:
             print(e)
-        
 
-# @receiver(post_save, sender=Workflow)
-# def InitializeWorkflow(sender, instance, created, **kwargs):
-#     if created:
-#         start = State.objects.create(title="Start")
-#         #owner = User.objects.filter(id=instance.owner).get()
-#         start.notifiers.add(instance.owner)
-#         end = State.objects.create(title="End")
-#         end.notifiers.add(instance.owner)
-#         instance.currentStates.add(start)
-#         Transition.objects.create(previous=start, next=end, associatedFlow=instance)
+def CreateExecutionWorkDocuments(work, newExecutionWork):
+    workDocs = WorkDocuments.objects.filter(associatedWork=work['id'])
+    for doc in workDocs:
+        ExecutionWorkDocuments.objects.create(title=doc.title, file=doc.file, associatedExecutionWork=newExecutionWork)
+
+def GetWorkCompletionDate(work, startTime):
+    timeString = work['duration'].split(':')
+    timeDelta = timedelta(days=int(timeString[0]), seconds=int(timeString[3]), minutes=int(timeString[2]), hours=int(timeString[1]))
+
+    return startTime + timeDelta
+
+def CreateExecutionWork(works, execution):
+    newExecutionWorks = []
+    for work in works:
+        # query all the assignees objects
+        workOwners = []
+        for userId in work['assignee']:
+            if userId != None:
+                workOwners.append(WorkGroups.objects.get(id=userId['id']))
+        
+        # query all the notifiers objects
+        workNotifiers = []
+        for userId in work['notifiers']:
+            if userId != None:
+                workNotifiers.append(User.objects.get(id=userId))
+        
+        # return created work object
+        state = State.objects.get(id=work['associatedState'])        
+        newExecutionWork = ExecutionWork.objects.create(title=work['title'], notes=work['notes'], associatedState=state, associatedExecution=execution)
+        # Update completion date
+        newExecutionWork.completion_date = GetWorkCompletionDate(work, newExecutionWork.start_date)
+        # Create execution work documents before updating work id in JSON
+        CreateExecutionWorkDocuments(work, newExecutionWork)
+        work['id'] = newExecutionWork.id
+        exec = {"associatedExecution":execution.id}
+        # start_date = {"start_date": newExecutionWork.start_date}
+        has_finished = {"has_finished": newExecutionWork.has_finished}
+        is_halted = {"is_halted": newExecutionWork.is_halted}
+        start_date = {"start_date": str(newExecutionWork.start_date)}
+        completion_date = {"completion_date": str(newExecutionWork.completion_date)}
+        work.update(exec)
+        work.update(start_date)
+        work.update(completion_date)
+        work.update(has_finished)
+        work.update(is_halted)
+        
+        if len(workOwners) > 0:
+            newExecutionWork.assignee.set(workOwners)
+        
+        if len(workNotifiers) > 0:
+            newExecutionWork.notifiers.set(workNotifiers)
+        
+        newExecutionWorks.append(newExecutionWork)
+
+    return newExecutionWorks
+
+def CreateExecutionTransitionApproval(transitionapprovals, execution):
+    newTransitionapprovals = []
+    for transitionapproval in transitionapprovals:
+        user = User.objects.get(id=transitionapproval['approver'])
+        tran = Transition.objects.get(id=transitionapproval['transitionToApprove'])
+        newTransitionapproval = ExecutionTransitionApproval.objects.create(associatedExecution=execution, transitionToApprove=tran, approver=user)
+        transitionapproval['id'] = newTransitionapproval.id
+        newTransitionapprovals.append(newTransitionapproval)
+        approval = {"approval": newTransitionapproval.approval}
+        reject = {"reject": newTransitionapproval.reject}
+        transitionapproval.update(approval)
+        transitionapproval.update(reject)
+    
+    return newTransitionapprovals
+
+@receiver(post_save, sender=Execution)
+def ExecutionHandler(sender, instance, created, **kwargs):
+    if created:
+        try:
+            # Get JSONWorkflowObject to manipulate the work ids
+            jsonObj = JSONWorkflow.objects.get(workflow=instance.associatedFlow)
+
+            if jsonObj is not None:
+                
+                flow = json.loads(jsonObj.jsonFlow)
+                
+                #Create execution work for each node
+                for node in flow['nodes']:
+                    CreateExecutionWork(works=node['data']['works'], execution=instance)
+
+                for edge in flow['edges']:
+                    CreateExecutionTransitionApproval(transitionapprovals=edge['data']['transition']['transitionapprovals'], execution=instance)
+                # Update execution object with new json string
+                # New JSON contains updated ExecutionWork objects
+                # and updated ExecutionTransitionApproval objects
+                Execution.objects.filter(id=instance.id).update(jsonFlow=json.dumps(flow))
+
+                # Update object ids in JSON saved in db
+                instance.jsonFlow = json.dumps(flow)
+                instance.save()
+        except Exception as e:
+            print(e)
