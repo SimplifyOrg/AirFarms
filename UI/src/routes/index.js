@@ -24,6 +24,9 @@ import UserProfile from '../pages/UserProfile';
 import UserActivities from '../pages/UserActivities';
 import Home from '../pages/Home';
 import Registration from '../pages/Registration';
+import Members from '../pages/Members';
+import Farm from '../pages/Farm';
+import Transitions from '../components/notifications/Transitions';
 
 function Navigation() {
     const { user } = useContext(UserContext);
@@ -38,6 +41,8 @@ function Navigation() {
             <Route path="farms" exact isPrivate element={<ProtectedRoute><FarmList/></ProtectedRoute>} />
             <Route path="dashboard" exact isPrivate element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
             <Route path="profile" exact isPrivate element={<ProtectedRoute><UserProfile/></ProtectedRoute>} />
+            <Route path="members" exact isPrivate element={<ProtectedRoute><Members/></ProtectedRoute>} />
+            <Route path="farm" exact isPrivate element={<ProtectedRoute><Farm/></ProtectedRoute>} />
 
             {/* <RouteWrapper path="/resetpassword" exact component={ResetPassword} />
             <RouteWrapper path="/user-dashboard" exact isPrivate component={UserDashboard} />
@@ -48,7 +53,8 @@ function Navigation() {
             <RouteWrapper path="/discussion-board" exact isPrivate component={DiscussionBoardPage} />
             <RouteWrapper path="/todo" exact isPrivate component={TodoPage} /> */}
             <Route path="workflow" exact isPrivate element={<ProtectedRoute><Workflow/></ProtectedRoute>} />
-            <Route path="workflow-list" exact isPrivate element={<ProtectedRoute><WorkflowList/></ProtectedRoute>} />
+            <Route path="transitions" exact isPrivate element={<ProtectedRoute><Transitions/></ProtectedRoute>} />
+            {/* <Route path="workflow-list" exact isPrivate element={<ProtectedRoute><WorkflowList/></ProtectedRoute>} /> */}
             <Route path="user-workflow-list" exact isPrivate element={<ProtectedRoute><UserActivities/></ProtectedRoute>} />
             <Route element={<Signin/>}/>
         </Routes>
