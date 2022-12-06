@@ -18,12 +18,17 @@ class FarmSerializer(serializers.ModelSerializer):
         )
         farm.save()
         farm_group, created = FarmGroups.objects.get_or_create(
-                                                                name=farm.name+'_group',
-                                                                defaults={'farm': farm},
+                                                                name=farm.name+'_'+farm.description+'_group',
+                                                                defaults={'farm': farm, 'isAdmin': False},
+                                                                )
+        admin_farm_group, admin_created = FarmGroups.objects.get_or_create(
+                                                                name=farm.name+'_admin'+'_'+farm.description+'_group',
+                                                                defaults={'farm': farm, 'isAdmin': True},
                                                                 )
         if created:
-            # farm_group.user_set.add(farm.user)
             farm.user.groups.add(farm_group)
+        if admin_created:
+            farm.user.groups.add(admin_farm_group)
         return farm
 
 

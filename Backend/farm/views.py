@@ -30,7 +30,7 @@ class FarmPictureViewSet(viewsets.ModelViewSet):
     queryset = FarmPicture.objects.all()
     serializer_class = FarmPictureSerializer
     filter_backends = [DjangoFilterBackend,]
-    filterset_fields = ['id', 'farm']
+    filterset_fields = ['id', 'farm', 'profilePicture']
 
     def retrieve(self, request, *args, **kwargs):
         farm_id = kwargs.get('farm_id', None)
@@ -53,8 +53,9 @@ class FarmGroupsViewSet(viewsets.ModelViewSet):
     ]
     queryset = FarmGroups.objects.all()
     serializer_class = FarmGroupsSerializer
-    filter_backends = [DjangoFilterBackend,]
+    filter_backends = [DjangoFilterBackend, OrderingFilter,]
     filterset_fields = ['id', 'name', 'farm']
+    ordering_fields = ['id', 'name']
 
     # def retrieve(self, request, *args, **kwargs):
     #     farm_id = kwargs.get('farm', None)

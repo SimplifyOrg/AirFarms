@@ -39,3 +39,4 @@ class FarmGroups(Group):
                             on_delete=models.CASCADE
                             )
     image = models.ImageField(default='default.jpg', upload_to='farm_group_media')
+    isAdmin = models.BooleanField(default=False)
