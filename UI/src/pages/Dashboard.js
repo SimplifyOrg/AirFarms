@@ -99,7 +99,7 @@ function Dashboard() {
             }
             const authProvider = AuthProvider()
 
-            authProvider.authGet(`/activity/transition-approval/handle/?approver=${user.data.id}&&approval=false`, config)
+            authProvider.authGet(`/activity/execution/transition-approval/handle/?approver=${user.data.id}&&approval=false`, config)
             .then(res => {
                 console.log(res);
                 console.log(res.data);
@@ -126,7 +126,7 @@ function Dashboard() {
             }
             const authProvider = AuthProvider()
 
-            authProvider.authGet(`/activity/work/handle/?assignee=${user.data.id}&&has_finished=false`, config)
+            authProvider.authGet(`/activity/execution/work/handle/?assignee=${user.data.id}&&has_finished=false`, config)
             .then(res => {
                 console.log(res);
                 console.log(res.data);
@@ -163,7 +163,7 @@ function Dashboard() {
             })
 
             // Get list of work that is halted
-            authProvider.authGet(`/activity/work/handle/?assignee=${user.data.id}&&is_halted=true`, config)
+            authProvider.authGet(`/activity/execution/work/handle/?assignee=${user.data.id}&&is_halted=true`, config)
             .then(res => {
                 console.log(res);
                 console.log(res.data);
@@ -228,12 +228,9 @@ function Dashboard() {
                         <StatLabel>Upcoming Works</StatLabel>
                         <StatNumber>{upcomingWorks.length}</StatNumber>
                     </Stat>
-                </Box>
-                
-                
-                
+                </Box> 
                 </SimpleGrid>
-                <ExecutionComp maxWidth="90%"/>
+                {numberFarms === 0? <></>:<ExecutionComp maxWidth="90%"/>}
             </Box>
      
         </NavBar>

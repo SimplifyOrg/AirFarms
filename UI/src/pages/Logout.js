@@ -10,7 +10,7 @@ import useLocalStorage from '../utils/useLocalStorage'
 export default function Logout(props) {
 
     // const [cookies, removeCookie] = useCookies(['airfarms_access_token']);
-    const {setLocalStorage} = useLocalStorage()
+    const {setLocalStorage, getLocalStorage} = useLocalStorage()
     const {user, setUser} = useContext(UserContext)
     const navigate = useNavigate()
 
@@ -33,7 +33,12 @@ export default function Logout(props) {
 
     const onLogout = function() {
         //Call login API
-        const refresh_token = readCookie('airfarms_refresh_token')
+        let refresh_token = readCookie('airfarms_refresh_token')
+        if(refresh_token === '' || refresh_token === undefined)
+        {
+            refresh_token = getLocalStorage("airfarms_refresh_token")
+        }
+        
         const refresh = {
             refresh_token: refresh_token
         };        
