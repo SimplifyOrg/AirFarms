@@ -9,7 +9,9 @@ import {
     Heading,
     Avatar,
     AvatarGroup,
-    Text
+    Text,
+    Checkbox,
+    useToast
 } from '@chakra-ui/react'
 import Assignee from './Assignee';
 import { AuthProvider } from '../../utils/AuthProvider';
@@ -22,6 +24,7 @@ function WorkUpdate({onChange, work, addAssigneeInNode}) {
 
     const {user} = useContext(UserContext)
     const {execution} = useContext(ExecutionContext)
+    const toast = useToast()
 
     const [notifiers, SetNotifiers] = useState(new Map())
     const addNotifiersInMap = (key, value) => {
@@ -59,7 +62,7 @@ function WorkUpdate({onChange, work, addAssigneeInNode}) {
 
     const updateAssignee = useCallback(async () => {
 
-        let ass = [...assignees];
+        let ass = Array.from(assignees.values());
         // let notoif = [];
         const authProvider = AuthProvider()
         let config = {
@@ -119,6 +122,39 @@ function WorkUpdate({onChange, work, addAssigneeInNode}) {
         onChange(workObj);
         
     }, []);
+
+    // Mark work as complete
+    // Send direct request to database
+    const sendSelection = (e, work) => {
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+        const authProvider = AuthProvider()
+        work.has_finished = e.target.checked
+        const finished = {
+            has_finished: e.target.checked
+        }
+        authProvider.authPatch(`/activity/execution/work/handle/${work.id}/`, finished, config)
+        .then(res => {
+            console.log(res);
+            console.log(res.data);
+            onChange(res.data)
+            toast({
+                position: 'top',
+                title: `Approved`,
+                description: `${work.title} is marked complete`,
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+              })
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+    
     return (
         <>
             <Box p={6}>
@@ -128,6 +164,7 @@ function WorkUpdate({onChange, work, addAssigneeInNode}) {
                     </Heading>
                     {execution === null?<EditableComponent color={'gray.500'} defaultValue={work.notes} updateTitle={updateDescription}/>:<Text>{work.notes}</Text>}
                     {execution === null?<Assignee addAssigneeInWork={addAssignee}/>: <></>}
+                    {execution === null?<></>:<Checkbox isChecked={work.has_finished === 'true' || work.has_finished === true} size='sm' colorScheme='green' borderColor='red.400' onChange={(e)=>{sendSelection(e, work)}}>Mark complete</Checkbox>}
                 </Stack>
                 {execution === null?<DurationEdit onChange={onChange} work={work}/>: <Timer deadline={new Date(work.completion_date)}/>}
                 <AvatarGroup size='md'>

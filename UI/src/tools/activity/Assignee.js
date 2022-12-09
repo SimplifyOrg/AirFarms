@@ -151,7 +151,7 @@ function Assignee(props) {
 
     const onSubmitAssignee = (values, onSubmitProps) => {
         // 
-        if(!assignedSet.has(values.assignee))
+        if(values.assignee !== '' && !assignedSet.has(values.assignee))
         {
             assignedSet.add(values.assignee)
             initialAssigned.push(values.assignee)
@@ -184,6 +184,7 @@ function Assignee(props) {
                             name='assignee'
                             color="orange.400"
                             approvers={Array.from(assignees.values())}
+                            isSearchable
                         />
                         <Button 
                             type='submit' 
@@ -198,7 +199,7 @@ function Assignee(props) {
             )
         }}            
         </Formik>
-        <Wrap>
+        {/* <Wrap>
             {
                 assigned.length === 0 ? <></>: assigned.map((assignee, idx) => {
                 return(
@@ -206,7 +207,7 @@ function Assignee(props) {
                 )
                 })
             }
-        </Wrap>
+        </Wrap> */}
     </>
   )
 }

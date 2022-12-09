@@ -162,19 +162,24 @@ export const AuthProvider = () => {
         return axios.put(location, body, init)      
     };
 
-    const authGet = async (url, init) => {
+    const authGet = async (url, init, useToken=true) => {
         
         init = init || {};
-        await fetchValidToken();
-        const token = await tokenProvider.getToken();
         // let domain = `http://127.0.0.1:8000`;
         let domain = `http://ec2-65-1-131-213.ap-south-1.compute.amazonaws.com:8000`;
         let location = domain.concat("", url);
-        init.headers = {
-            ...init.headers,
-            Authorization: `Bearer ${token.accessToken}`,
-        };
-        console.log(init.headers)
+
+        if(useToken)
+        {
+            await fetchValidToken();
+            const token = await tokenProvider.getToken();
+            
+            init.headers = {
+                ...init.headers,
+                Authorization: `Bearer ${token.accessToken}`,
+            };
+            console.log(init.headers)
+        }
         
         return axios.get(location, init)      
     };

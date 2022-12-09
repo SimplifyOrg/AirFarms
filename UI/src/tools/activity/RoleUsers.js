@@ -13,7 +13,8 @@ import {
     Button,
     HStack,
     Text,
-    Divider
+    Divider,
+    useToast
 } from '@chakra-ui/react'
 import { AuthProvider } from '../../utils/AuthProvider'
 import FarmContext from '../../utils/FarmContext'
@@ -36,6 +37,7 @@ function RoleUsers({role}) {
     }
     const {farm} = useContext(FarmContext)
     const {execution} = useContext(ExecutionContext)
+    const toast = useToast()
 
     useEffect(() => {
 
@@ -125,26 +127,40 @@ function RoleUsers({role}) {
             }
         }
 
-        authProvider.authGet(`/account/user/?id=${values.assignee}`, config)
-        .then(res =>{
-            console.log(res);
-            console.log(res.data);
-            const body = res.data[0]
-            body.groups.push(role.id)
-    
-            authProvider.authPatch(`/account/user/${values.assignee}/`, body, config)
+        if(!assignedUsers.has(values.assignee))
+        {
+            authProvider.authGet(`/account/user/?id=${values.assignee}`, config)
             .then(res =>{
                 console.log(res);
                 console.log(res.data);
-                addAssignedUsersInMap(values.assignee, res.data) 
+                const body = res.data[0]
+                body.groups.push(role.id)
+        
+                authProvider.authPatch(`/account/user/${values.assignee}/`, body, config)
+                .then(res =>{
+                    console.log(res);
+                    console.log(res.data);
+                    addAssignedUsersInMap(values.assignee, res.data) 
+                })
+                .catch(error => {
+                    console.log(error);
+                })
             })
             .catch(error => {
                 console.log(error);
             })
-        })
-        .catch(error => {
-            console.log(error);
-        })        
+        }
+        else
+        {
+            toast({
+                position: 'top',
+                title: 'User already assigned!',
+                description: "Cannot add same user again.",
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+              })
+        }
         
         onSubmitProps.setSubmitting(false)
         onSubmitProps.resetForm()

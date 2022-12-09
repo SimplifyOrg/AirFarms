@@ -26,7 +26,28 @@ function useNotification() {
         })
     }
 
-    return {sendNotification}
+    function markRead(notification) {
+        const authProvider = AuthProvider()
+        let config = {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+
+        let body = notification;
+        body.user_has_seen = true;     
+        body.data = JSON.stringify(notification.data)   
+
+        authProvider.authPut(`/notification/data/handle/${notification.id}/`, body, config)
+        .then(res =>{
+            console.log(res);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }
+
+    return {sendNotification, markRead}
 }
 
 export default useNotification
