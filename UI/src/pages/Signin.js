@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import Login from '../components/Login'
 // import ResetPassword from "../components/ResetPassword";
@@ -7,18 +7,23 @@ import {
     Box, 
     Flex, 
     Heading,
-    HStack
+    useColorModeValue,
+    Image
 } from '@chakra-ui/react'
 import NavBar from "../components/navigation/NavBar";
 
-class Signin extends Component {  
-  render() {
-    return (
-        <>
+function Signin() {
+  return (
+    <>
         <NavBar/>
-        <div className="welcome-body">
+        <div className={useColorModeValue("welcome-body-light", "welcome-body")}>
         <div className="container">
-        <Flex className="row" width="full" align="center" justifyContent="center">
+        <Flex 
+        // backgroundImage={useColorModeValue("url('https://www.macmillandictionary.com/us/external/slideshow/thumb/134596_thumb.jpg')", "url('https://cdn.britannica.com/97/141297-050-5A5B37D7/fishing-nets-fishery-Kochi-India-Kerala.jpg')")}
+        // // backgroundImage={useColorModeValue(<Image objectFit='cover' src='https://www.macmillandictionary.com/us/external/slideshow/thumb/134596_thumb.jpg'/>, <Image objectFit='cover' src='https://cdn.britannica.com/97/141297-050-5A5B37D7/fishing-nets-fishery-Kochi-India-Kerala.jpg'/>)}
+        // backgroundPosition="center"
+        // backgroundRepeat="no-repeat"
+        className="row" width="full" align="center" justifyContent="center">
             <Box>
             <Box textAlign="center">
                 <Heading color="orange.400">Login</Heading>
@@ -35,12 +40,7 @@ class Signin extends Component {
         </div>
         </div>
     </>
-    );
-  }
-
-  componentDidMount(){
-      
-  }
+  )
 }
 
-export default Signin;
+export default Signin

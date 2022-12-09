@@ -5,7 +5,8 @@ import {
     Box, 
     Flex, 
     Heading,
-    Text
+    Text,
+    useColorModeValue
 } from '@chakra-ui/react'
 import {Link} from 'react-router-dom'
 
@@ -13,7 +14,7 @@ function Registration() {
     return (
         <>
         <NavBar/>
-        <div className="welcome-body">
+        <div className={useColorModeValue("welcome-body-light", "welcome-body")}>
         <div className="container">
             <Flex className="row" width="full" align="center" justifyContent="center">
                 <Box>

@@ -31,6 +31,9 @@ function Members() {
     const addSearchedUsers = (key, value) => {
         SetSearchedUsers(new Map(searchedUsers.set(key, value)))
     }
+    const clearSearchedUsers = () => {
+        SetSearchedUsers(new Map(searchedUsers.clear()))
+    }
 
     useEffect(() => {
 
@@ -59,7 +62,7 @@ function Members() {
                 })
             }
         }
-    }, [])
+    }, [searchedUsers])
 
     const searchAction = useCallback((searchString) => {
         
@@ -69,6 +72,7 @@ function Members() {
                 'Accept': 'application/json'
             }
         }
+        clearSearchedUsers();
 
         authProvider.authGet(`/account/user/?search=${searchString}&&ordering=-first_name`, config)
         .then(res => {
@@ -83,7 +87,7 @@ function Members() {
             console.log(error);
         })
        
-    }, [])
+    }, [searchedUsers])
 
     return (
         <NavBar>
@@ -96,7 +100,7 @@ function Members() {
                 </BreadcrumbItem>
             </Breadcrumb>
             <Center>
-                <Autocomplete suggestions={Array.from(allUsers.values())} performAction={searchAction} searchAction={searchAction}/>
+                <Autocomplete placeholder='Search People ...' suggestions={Array.from(allUsers.values())} performAction={searchAction} searchAction={searchAction}/>
             </Center>
             {searchedUsers.size === 0? <></>: <UserSearchResults results={searchedUsers}/>}
         </NavBar>

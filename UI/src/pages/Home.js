@@ -1,7 +1,7 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
 import {
-    Button, HStack, VStack, Grid, GridItem, Text, Spacer
+    Button, HStack, useColorModeValue, Grid, GridItem, Text, Spacer
 } from '@chakra-ui/react'
 import NavBar from '../components/navigation/NavBar'
 
@@ -10,37 +10,10 @@ function Home() {
     
     <>
     <NavBar/>
-    <div className="welcome-body">
+    <div className={useColorModeValue("welcome-body-light", "welcome-body")}>
       
       <div className="container">
         <HStack className="row">
-          {/* <VStack>
-            <h1 className="welcome-title">Welcome</h1>
-            <p className="lead">
-              You'll be the first to hear about our new collections, special
-              offers, private events, upcoming sales and all the latest news.
-              <br />
-              <span class="mx-0" style={{ fontWeight: "400" }}>
-                A LITTLE THANK YOU....
-              </span>
-              <br />
-              <span class="mx-0" style={{ fontWeight: "400" }}>
-                AND FREE STANDARD SHIPPING ANYWHERE IN INDIA.
-              </span>
-            </p>
-            <HStack>
-                <Link to="/login">
-                    <Button variant='outline'>
-                        <strong>Log In</strong>
-                    </Button>
-                </Link>
-                <Link to="/signup">
-                    <Button variant='outline'>
-                        <strong>Sign Up</strong>
-                    </Button>
-                </Link>
-            </HStack>
-          </VStack> */}
             <Grid
                 h='200px'
                 templateRows='repeat(4, 1fr)'

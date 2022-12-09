@@ -84,9 +84,9 @@ function Farm() {
                                 <Text>{farm.description}</Text>
                             </VStack>
                         </CardBody>
-                        <CardFooter>
+                        {/* <CardFooter>
                             <Button>View here</Button>
-                        </CardFooter>
+                        </CardFooter> */}
                     </Card>
                 </GridItem>
                 <GridItem colSpan={3}><ExecutionComp maxWidth="50%"/></GridItem>
