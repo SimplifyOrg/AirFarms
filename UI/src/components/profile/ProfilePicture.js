@@ -22,18 +22,22 @@ import {
     PopoverHeader,
     PopoverCloseButton,
     PopoverBody,
+    useDisclosure,
+    Tooltip
   } from '@chakra-ui/react';
-  import {EditIcon} from '@chakra-ui/icons'
+  import {EditIcon, LockIcon} from '@chakra-ui/icons'
   import EditableComponent from '../EditableComponent'
   import { AuthProvider } from '../../utils/AuthProvider';
   import UserContext from '../../utils/UserContext';
 import UpdatePicture from './UpdatePicture';
+import ChangePassword from './ChangePassword';
   
   export default function ProfilePicture(props) {
 
     const {user, setUser} = useContext(UserContext)
     const [hover, setHover] = useState(false);
     const [holdhover, setHoldhover] = useState(false);
+    const { onOpen, onClose, isOpen } = useDisclosure()
 
     const handleMouseIn = () => {
         setHover(true);
@@ -63,10 +67,14 @@ import UpdatePicture from './UpdatePicture';
             .then(res => {
                 console.log(res);
                 console.log(res.data);
+                const userData = {
+                    data : res.data,
+                    picture : user.picture
+                }
+                setUser(userData)
             })
             .catch(error => {
                 console.log(error);
-                console.log(error.data);
             })
 
         }
@@ -78,9 +86,9 @@ import UpdatePicture from './UpdatePicture';
         }
         
         updateUser(data)
-        let updatedUser = user;
-        updatedUser.data.about = data.about;
-        setUser(updatedUser)
+        // let updatedUser = user;
+        // updatedUser.data.about = data.about;
+        
         
     }, []);
 
@@ -91,9 +99,9 @@ import UpdatePicture from './UpdatePicture';
         }
         
         updateUser(data)
-        let updatedUser = user;
-        updatedUser.data.first_name = data.first_name;
-        setUser(updatedUser)
+        // let updatedUser = user;
+        // updatedUser.data.first_name = data.first_name;
+        // setUser(updatedUser)
         
     }, []);
 
@@ -104,9 +112,9 @@ import UpdatePicture from './UpdatePicture';
         }
         
         updateUser(data)
-        let updatedUser = user;
-        updatedUser.data.last_name = data.last_name;
-        setUser(updatedUser)
+        // let updatedUser = user;
+        // updatedUser.data.last_name = data.last_name;
+        // setUser(updatedUser)
         
     }, []);
 
@@ -115,11 +123,13 @@ import UpdatePicture from './UpdatePicture';
         let updatedUser = user;
         updatedUser.picture = data.image;
         setUser(updatedUser)
+        setHoldhover(false)
         
     }, []);
 
     return (
       <Center py={6}>
+        
         <Box
           maxW={'270px'}
           w={'full'}
@@ -135,6 +145,7 @@ import UpdatePicture from './UpdatePicture';
             }
             objectFit={'cover'}
           />
+            
           <Flex justify={'center'} mt={-12}>
             <Avatar
               size={'xl'}
@@ -163,7 +174,8 @@ import UpdatePicture from './UpdatePicture';
                 </Portal>
             </Popover>:<></>}
             </Avatar>
-          </Flex>
+            
+          </Flex>          
   
           <Box p={6}>
             <Stack spacing={0} align={'center'} mb={5}>
@@ -174,7 +186,29 @@ import UpdatePicture from './UpdatePicture';
               <EditableComponent color={'gray.500'} defaultValue={props.user.data.about} updateTitle={updateAbout}/>
             </Stack>
           </Box>
+          <Popover 
+            isLazy
+            isOpen={isOpen}
+            onOpen={onOpen}
+            onClose={onClose}
+            mt={1}
+            >
+                <PopoverTrigger>
+                    <IconButton icon={<LockIcon/>}/>
+                </PopoverTrigger>
+                <Portal>
+                    <PopoverContent>
+                        <PopoverArrow />
+                        <PopoverHeader>Change Password</PopoverHeader>
+                        <PopoverCloseButton />
+                        <PopoverBody>
+                            <ChangePassword/>
+                        </PopoverBody>
+                    </PopoverContent>
+                </Portal>
+            </Popover>
         </Box>
+        
       </Center>
     );
   }

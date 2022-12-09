@@ -33,7 +33,7 @@ function UserSearchResults({results}) {
             })
 
         }
-    }, [])
+    }, [results])
 
     return (
         <SimpleGrid mt={10} spacing={2} templateColumns='repeat(auto-fill, minmax(200px, 1fr))'>

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useCallback} from 'react'
 import { Card, CardBody, Tooltip, SimpleGrid, Avatar, Text, IconButton, HStack, Flex } from '@chakra-ui/react'
 import { HiPlus } from "react-icons/hi2";
 import { AuthProvider } from '../utils/AuthProvider'
@@ -66,12 +66,36 @@ function FarmUserSearchResults({results, farmGroup}) {
 
     }, [results])
 
+    const addUserToFarm = useCallback((user) => {  
+        
+        if(farmGroup)
+        {
+            const authProvider = AuthProvider()
+            let config = {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }
+
+            user.groups.push(farmGroup.id)
+            
+            authProvider.authPatch(`/account/user/${user.id}/`, user, config)
+            .then(res => {
+                console.log(res);
+                console.log(res.data);
+                addFarmUsers(res.data.id, res.data);             
+            })
+            .catch(error => {
+                console.log(error);
+            })
+        }
+        
+    }, [])
+
     return (
         <SimpleGrid mt={10} spacing={2} templateColumns='repeat(auto-fill, minmax(200px, 1fr))'
             maxH="600px"
             alignItems="center"
-            borderWidth="2px"
-            borderRadius="lg"
             overflowY="auto"
             css={{
                 '&::-webkit-scrollbar': {
@@ -105,7 +129,7 @@ function FarmUserSearchResults({results, farmGroup}) {
                                             />
                                             <Text>{name}</Text>
                                         </Flex>
-                                        {farmUsers.has(pic.user) === true? <></>: <Tooltip label='Add to current farm'><IconButton  variant='ghost'  colorScheme='teal' icon={<HiPlus />}/></Tooltip>}
+                                        {farmUsers.has(pic.user) === true? <></>: <Tooltip label='Add to current farm'><IconButton  onClick={() => addUserToFarm(results.get(pic.user))} variant='ghost'  colorScheme='teal' icon={<HiPlus />}/></Tooltip>}
                                     </Flex>                            
                                 </CardBody>
                             </Card>

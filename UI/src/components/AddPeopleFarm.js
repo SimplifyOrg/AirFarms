@@ -26,6 +26,10 @@ function AddPeopleFarm({farm}) {
         SetSearchedUsers(new Map(searchedUsers.set(key, value)))
     }
 
+    const clearSearchedUsers = () => {
+        SetSearchedUsers(new Map(searchedUsers.clear()))
+    }
+
     useEffect(() => {
 
         if(user)
@@ -53,7 +57,7 @@ function AddPeopleFarm({farm}) {
                 })
             }
         }
-    }, [])
+    }, [searchedUsers])
 
     useEffect(() => {
 
@@ -86,7 +90,7 @@ function AddPeopleFarm({farm}) {
                 'Accept': 'application/json'
             }
         }
-
+        clearSearchedUsers()
         authProvider.authGet(`/account/user/?search=${searchString}&&ordering=-first_name`, config)
         .then(res => {
             console.log(res);
@@ -104,7 +108,7 @@ function AddPeopleFarm({farm}) {
 
     return (
         <VStack>
-            <Autocomplete suggestions={Array.from(allUsers.values())} performAction={searchAction} searchAction={searchAction}/>
+            <Autocomplete placeholder='Search People ...' suggestions={Array.from(allUsers.values())} performAction={searchAction} searchAction={searchAction}/>
             {searchedUsers.size === 0? <></>: <FarmUserSearchResults results={searchedUsers} farmGroup={farmGroup}/>}
         </VStack>
     )

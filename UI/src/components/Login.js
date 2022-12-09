@@ -70,7 +70,7 @@ export default function Login(props) {
             // onSubmitProps.setFieldError("password", "Login failed! Please reload the page and try again.")
             toast({
                 position: 'top',
-                title: 'Login failed!',
+                title: 'Login ID or Password wrong!',
                 description: "Please reload the page and try again.",
                 status: 'error',
                 duration: 3000,
@@ -86,6 +86,76 @@ export default function Login(props) {
         onSubmitProps.resetForm()
     }
 
+    const USER_DOESNOT_EXIST = "Login ID seems to be invalid! Try using phonenumeber or email ID";
+    const USER_FETCH_ERROR = "Failed to verify login ID! Try using phonenumeber or email ID"
+
+    Yup.addMethod(Yup.mixed, 'validUser', function (message) {
+        return this.test('validUser', message, function (value) {            
+            const { path, createError } = this;
+            return new Promise(async (resolve, reject) => {
+                let config = {
+                    headers: {
+                    'Content-Type': 'application/json'
+                    }
+                }    
+                const authProvider = AuthProvider()
+                let validated = false;
+                await authProvider.authGet(`/account/user/?email=${value}`, config, false)
+                .then(res =>{
+                    console.log(res);
+                    if(res.data.length === 0)
+                    {
+                        // reject(createError({ path, message: message ?? USER_DOESNOT_EXIST }));
+                        validated = false;
+                    }
+                    else
+                    {
+                        // resolve(true);
+                        validated = true
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                    reject(createError({ path, message: message ?? USER_FETCH_ERROR }));
+                    validated = false
+                })
+
+                if(!validated)
+                {
+                    await authProvider.authGet(`/account/user/?phonenumber=${value}`, config, false)
+                    .then(res =>{
+                        console.log(res);
+                        if(res.data.length === 0)
+                        {
+                            // reject(createError({ path, message: message ?? USER_DOESNOT_EXIST }));
+                            validated = false;
+                        }
+                        else
+                        {
+                            // resolve(true);
+                            validated = true
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        reject(createError({ path, message: message ?? USER_FETCH_ERROR }));
+                        validated = false;
+                    })
+                }
+
+                if(!validated)
+                {
+                    reject(createError({ path, message: message ?? USER_DOESNOT_EXIST }));
+                }
+                else
+                {
+                    resolve(true);
+                }
+
+            })
+        });
+    });
+
     const [show, setShow] = React.useState(false)
     const handleClick = () => setShow(!show)
 
@@ -99,7 +169,8 @@ export default function Login(props) {
 
     const validationSchemaPhone = Yup.object({
         phone: Yup.string()
-            .required('Required'),
+            .required('Required')
+            .validUser(),
         password: Yup.string()
             .required('Required')
     })

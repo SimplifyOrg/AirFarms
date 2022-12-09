@@ -50,11 +50,11 @@ function Sidepanel() {
                             <Text>Activities</Text>
                         </Link>
                     </Flex>
-                    <Flex className='sidebar-items'>
+                    {/* <Flex className='sidebar-items'>
                         <Link _hover={{textDecor:'none'}} to='/members'>
                             <Text>Members</Text>
                         </Link>
-                    </Flex>
+                    </Flex> */}
                 </Flex>
             </Flex>
             <Link to='/profile'>

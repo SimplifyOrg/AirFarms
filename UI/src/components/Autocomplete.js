@@ -7,17 +7,29 @@ import {
     VStack,
     List,
     ListItem,
-    Button
+    Button,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    Flex,
+    Text,
+    useDisclosure,
+    Spacer
  } from '@chakra-ui/react'
 import React, {useState, Fragment} from 'react'
 import {SearchIcon} from '@chakra-ui/icons'
 
-function Autocomplete({suggestions, performAction, searchAction}) {
+function Autocomplete({suggestions, performAction, searchAction, placeholder}) {
 
     const [activeSuggestion, SetActiveSuggestion] = useState(0)
     const [filteredSuggestion, SetFilteredSuggestion] = useState([])
     const [showSuggestion, SetShowSuggestion] = useState(false)
     const [userInput, SetUserInput] = useState('')
+    const ref = React.useRef()
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
 
     const onChange = (e) => {
@@ -86,7 +98,9 @@ function Autocomplete({suggestions, performAction, searchAction}) {
         if (filteredSuggestion.length) 
         {
             suggestionsListComponent = (
+                
                 <List width='100%' spacing={1} borderWidth='1px'>
+                    
                 {filteredSuggestion.map((suggestion, index) => {
                 let className;
 
@@ -96,14 +110,20 @@ function Autocomplete({suggestions, performAction, searchAction}) {
                 }
 
                 return (
+                    
                     <ListItem>
+                        
                         <Button width='100%' variant='ghost' colorScheme='teal' key={suggestion} onClick={onClick}>
                         {suggestion}
                         </Button>
+                        
                     </ListItem>
+                    
                 );
                 })}
             </List>
+            
+            
             );
         } 
         else 
@@ -118,19 +138,28 @@ function Autocomplete({suggestions, performAction, searchAction}) {
         <Fragment>
             <VStack>
             <Center w='100%'>
-            <InputGroup>
-                <Input
-                type="text"
-                onChange={onChange}
-                onKeyDown={onKeyDown}
-                value={userInput}
-                />
-                <InputRightElement children={<IconButton variant='ghost' onClick={onSearch} icon={<SearchIcon color='green.500'/>}/>} />
-                
-            </InputGroup>
+                <Button onClick={onOpen} variant='outline' leftIcon={<SearchIcon color='green.500'/>}>{placeholder}</Button>
+                <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                <ModalHeader>
+                    <InputGroup >
+                        <Input
+                        type="text"
+                        onChange={onChange}
+                        onKeyDown={onKeyDown}
+                        value={userInput}
+                        />
+                        <InputRightElement children={<IconButton variant='ghost' onClick={onSearch} icon={<SearchIcon color='green.500'/>}/>} />                    
+                    </InputGroup>
+                </ModalHeader>
+                <ModalBody>
+                    {suggestionsListComponent}
+                </ModalBody>
+                </ModalContent>
+            </Modal>
             
             </Center>
-            {suggestionsListComponent}
             </VStack>
         </Fragment>
     )

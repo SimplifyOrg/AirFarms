@@ -6,18 +6,23 @@ import {
     Heading
 } from '@chakra-ui/react'
 import NavBar from '../navigation/NavBar';
+import useNotification from '../../utils/useNotification';
 
 function Transitions() {
     const location = useLocation();
     const [notificationData, SetNotificationData] = useState(location?.state?.data)
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const {markRead} = useNotification()
 
     useEffect(() => {
         
-        let incomingTransition = undefined
+        // let incomingTransition = undefined
         if(location?.state?.data !== null && location?.state?.data !== undefined)
         {
-            incomingTransition = location?.state?.data;
+            // This means we came here after user clicked on a notification
+            // menu item. We should mark that notification as read.
+            // incomingTransition = location?.state?.data;
+            markRead(location.state.data)
         }
 
     }, [])
@@ -25,7 +30,7 @@ function Transitions() {
     return (
         <NavBar>
             <Heading>
-                <Text>{notificationData?.workflow.workflow.title}</Text>
+                <Text>{notificationData?.data?.workflow.workflow.title}</Text>
             </Heading>
         </NavBar>
     )

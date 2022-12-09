@@ -105,16 +105,83 @@ function Signup() {
 
     // const phoneRegExp = /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/
     const phoneRegExp = /^\+/
+    const EMAIL_EXISTS_ERROR = "Email already registered!";
+    const EMAIL_FETCH_ERROR = "Failed to verify email!"
+    const PHONE_EXISTS_ERROR = "Phone number already registered!";
+    const PHONE_FETCH_ERROR = "Failed to verify phone number!"
+
+    Yup.addMethod(Yup.mixed, 'validEmail', function (message) {
+        return this.test('validEmail', message, function (value) {            
+            const { path, createError } = this;
+            return new Promise(async (resolve, reject) => {
+                let config = {
+                    headers: {
+                    'Content-Type': 'application/json'
+                    }
+                }    
+                const authProvider = AuthProvider()
+                await authProvider.authGet(`/account/user/?email=${value}`, config, false)
+                .then(res =>{
+                    console.log(res);
+                    if(res.data.length === 0)
+                    {
+                        resolve(true);
+                    }
+                    else
+                    {
+                        reject(createError({ path, message: message ?? EMAIL_EXISTS_ERROR }));
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                    reject(createError({ path, message: message ?? EMAIL_FETCH_ERROR }));                    
+                })
+
+            })
+        });
+    });
+
+    Yup.addMethod(Yup.mixed, 'validPhone', function (message) {
+        return this.test('validPhone', message, function (value) {            
+            const { path, createError } = this;
+            return new Promise(async (resolve, reject) => {
+                let config = {
+                    headers: {
+                    'Content-Type': 'application/json'
+                    }
+                }    
+                const authProvider = AuthProvider()
+                await authProvider.authGet(`/account/user/?phonenumber=${value}`, config, false)
+                .then(res =>{
+                    console.log(res);
+                    if(res.data.length === 0)
+                    {
+                        resolve(true);
+                    }
+                    else
+                    {
+                        reject(createError({ path, message: message ?? PHONE_EXISTS_ERROR }));
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                    reject(createError({ path, message: message ?? PHONE_FETCH_ERROR }));                    
+                })
+
+            })
+        });
+    });
 
 
     const validationSchema = Yup.object({
         name: Yup.string().required('Required'),
         email: Yup.string()
             .email('Invalid email ID')
-            .required('Required'),
+            .required('Required')
+            .validEmail(),
         phone: Yup.string()
-            .matches(phoneRegExp, 'Region code is missing')
-            .required('Required'),
+            .required('Required')
+            .validPhone(),
         password: Yup.string()
             .required('Required'),
         confirmPassword: Yup.string()
@@ -129,7 +196,6 @@ function Signup() {
         onSubmit={onSubmit}
         validationSchema={validationSchema}>
         {formik => {
-        // console.log('Formik object', formik)
         return (
             <Form>
                 <VStack>
@@ -141,14 +207,21 @@ function Signup() {
                             name='email'
                             required
                             color="orange.400"
-                        />                       
+                        />      
+                        {/* <FormikControl
+                            control='comboBox'
+                            placeholder='Country code'
+                            name='assignee'
+                            color="orange.400"
+                            approvers={Array.from(assignees.values())}
+                        />                  */}
                         <FormikControl
                             control='chakraInput'
                             type='tel'
                             label='Phone number'
                             name='phone'
                             required
-                            color="orange.400"
+                            color='orange.400'
                         />
                     </HStack>
                     <HStack>                        

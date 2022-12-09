@@ -6,13 +6,15 @@ import {
     FormErrorMessage,
     IconButton,
     InputGroup,
-    InputRightElement
+    InputRightElement,
+    useColorModeValue
 } from '@chakra-ui/react'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { Field } from 'formik'
 
 function ChakraInput(props) {
     const {label, name, required, color, setRef, type, handleShow, showPasswordButton, showColor, showIconColor, handleFileUpload, ...rest} = props
+    const fontColor = useColorModeValue('yellow.200', 'yellow.100');
     return (
         <Field name={name}>
             {({field, form}) => {
@@ -21,7 +23,7 @@ function ChakraInput(props) {
                         {label ? <FormLabel htmlFor={name} color={color}>{label}</FormLabel> : <div/>}
                         <InputGroup>
                         {type === 'file'?
-                            <Input id={name}{...rest}{...field} type={type}
+                            <Input id={name}{...rest}{...field} type={type} color={fontColor}
                             ref={(ref) => {
                                 if(setRef !== undefined && ref !== null){
                                     setRef(ref)
@@ -36,7 +38,7 @@ function ChakraInput(props) {
                                 }                            
                             }}
                             />:
-                            <Input id={name}{...rest}{...field} type={type}
+                            <Input id={name}{...rest}{...field} type={type} color={fontColor}
                             ref={(ref) => {
                                 if(setRef !== undefined && ref !== null){
                                     setRef(ref)
