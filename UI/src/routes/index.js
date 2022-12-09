@@ -27,6 +27,7 @@ import Registration from '../pages/Registration';
 import Members from '../pages/Members';
 import Farm from '../pages/Farm';
 import Transitions from '../components/notifications/Transitions';
+import Works from '../components/notifications/Works';
 
 function Navigation() {
     const { user } = useContext(UserContext);
@@ -54,6 +55,7 @@ function Navigation() {
             <RouteWrapper path="/todo" exact isPrivate component={TodoPage} /> */}
             <Route path="workflow" exact isPrivate element={<ProtectedRoute><Workflow/></ProtectedRoute>} />
             <Route path="transitions" exact isPrivate element={<ProtectedRoute><Transitions/></ProtectedRoute>} />
+            <Route path="work" exact isPrivate element={<ProtectedRoute><Works/></ProtectedRoute>} />
             {/* <Route path="workflow-list" exact isPrivate element={<ProtectedRoute><WorkflowList/></ProtectedRoute>} /> */}
             <Route path="user-workflow-list" exact isPrivate element={<ProtectedRoute><UserActivities/></ProtectedRoute>} />
             <Route element={<Signin/>}/>
