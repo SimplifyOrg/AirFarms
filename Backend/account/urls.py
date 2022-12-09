@@ -14,6 +14,6 @@ urlpatterns = [
     path('token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    path('change-password/', views.ChangePasswordView.as_view(), name='change-password'),
+    path('change-password/<int:pk>/', views.ChangePasswordView.as_view(), name='change-password'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
 	]
